@@ -19,7 +19,6 @@ TODO:
 - Improve performance
   * Lazyload versions? The issue is that there's hundreds of versions being displayed at once
 - More stats
-- Link to changelog
 - Ability to favorite a version
 - Add "and" to final unit
  */
@@ -82,48 +81,44 @@ export default function IndexPage() {
             const isOldest = version.id === data.versions[data.oldest[version.type]].id;
 
             newList.push(
-                <Box key={version.id} id={version.id}>
-                    <ThemePaper key={version.id}>
-                        <Stack>
-                            <VersionTitle id={version.id} badge={isNewest ? `Newest ${version.type}` : isOldest ? `Oldest ${version.type}` : undefined} released={version.date.released} />
-                            <Group position="apart" sx={{
-                                "alignItems": "flex-end"
-                            }}>
-                                <Text>Released <Text weight="bold" component="span">{version.date.age}</Text> ago</Text>
-                                <Group>
-                                    <ActionIcon color="primary" size="lg" variant="filled" onClick={async () => {
-                                        // Add the selected categories if required
-                                        let hash = `#${version.id}`;
-                                        if (types.length > 0 && !(types.length === 1 && types[0] === "release")) {
-                                            searchParams.set("types", types.join(","));
+                <ThemePaper key={version.id} id={version.id}>
+                    <Stack>
+                        <VersionTitle id={version.id} badge={isNewest ? `Newest ${version.type}` : isOldest ? `Oldest ${version.type}` : undefined} released={version.date.released} />
+                        <Group position="apart" sx={{
+                            "alignItems": "flex-end"
+                        }}>
+                            <Text>Released {version.date.age} ago</Text>
+                            <Group>
+                                <ActionIcon color="primary" size="lg" variant="filled" onClick={async () => {
+                                    // Add the selected categories if required
+                                    let hash = `#${version.id}`;
+                                    if (types.length > 0 && !(types.length === 1 && types[0] === "release")) {
+                                        searchParams.set("types", types.join(","));
 
-                                            hash = `?${searchParams.toString()}${hash}`;
-                                        }
+                                        hash = `?${searchParams.toString()}${hash}`;
+                                    }
 
-                                        navigate(hash, {
-                                            "replace": true
-                                        });
+                                    navigate(hash, {
+                                        "replace": true
+                                    });
 
-                                        // Copy link to clipboard
-                                        await navigator.clipboard.writeText(window.location.href);
+                                    // Copy link to clipboard
+                                    await navigator.clipboard.writeText(window.location.href);
 
-                                        showNotification({
-                                            "title": "Successfully Copied!",
-                                            "message": "The link to this version has been copied to your clipboard."
-                                        });
-                                    }}>
-                                        <IconLink />
-                                    </ActionIcon>
-                                    <Link to={`/${version.id}`}>
-                                        <ActionIcon color="primary" size="lg" variant="filled">
-                                            <IconShare />
-                                        </ActionIcon>
-                                    </Link>
-                                </Group>
+                                    showNotification({
+                                        "title": "Successfully Copied!",
+                                        "message": "The link to this version has been copied to your clipboard."
+                                    });
+                                }}>
+                                    <IconLink />
+                                </ActionIcon>
+                                <ActionIcon component={Link} to={`/${version.id}`} color="primary" size="lg" variant="filled">
+                                    <IconShare color="white" />
+                                </ActionIcon>
                             </Group>
-                        </Stack>
-                    </ThemePaper>
-                </Box>
+                        </Group>
+                    </Stack>
+                </ThemePaper>
             );
         }
 
@@ -139,13 +134,9 @@ export default function IndexPage() {
                             <Image src={badge} width={42} />
                             <ImportantTitle ml="md">{details.name}</ImportantTitle>
                         </ImportantTitle.Wrapper>
-                        <Container size="md" sx={{
-                            "width": "100%"
-                        }}>
-                            <Text size="lg" weight="bold" align="left">"How old is Minecraft?"</Text>
-                            <Text size="lg" weight="bold" align="center">"Where is the age of that version?"</Text>
-                            <Text size="lg" weight="bold" align="right">"Am I old?"</Text>
-                        </Container>
+                        <Text size="lg" weight="bold" align="left">"How old is Minecraft?"</Text>
+                        <Text size="lg" weight="bold" align="center">"Where is the age of that version?"</Text>
+                        <Text size="lg" weight="bold" align="right">"Am I old?"</Text>
                         <Space h="md" />
                         <Text size="lg" align="center">...you may ask yourself. This website contains the answers to those questions!</Text>
                     </Stack>
@@ -174,15 +165,6 @@ export default function IndexPage() {
                     }} />
                 </Collapse>
                 <Stack>
-                    {!debouncedSearch && (
-                        <ThemePaper>
-                            <Stack>
-                                <VersionTitle id={data.versions[data.oldest.all].id} badge="Oldest" released={data.versions[data.oldest.all].date.released} />
-                                <Text>This is the oldest public version of Minecraft.</Text>
-                                <Text>It was released {data.versions[data.oldest.all].date.age} ago!</Text>
-                            </Stack>
-                        </ThemePaper>
-                    )}
                     {listedVersions}
                 </Stack>
             </Stack>
