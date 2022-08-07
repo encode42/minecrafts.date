@@ -32,17 +32,18 @@ interface LoaderResult {
     "websiteURL": string | undefined
 }
 
-export function meta({ data }: MetaOptions) {
+export function meta({ data }: MetaOptions): MetaDescriptor {
     return {
         "title": details.name,
         "description": "A simple website that displays the age of various Minecraft versions.",
+        "og:site_name": details.name,
         "og:url": data.websiteURL,
         "og:image": badge,
         "twitter:card": "summary",
-        "themeColor": "#40c057",
+        "theme-color": "#40c057",
         "charset": "utf-8",
         "viewport": "width=device-width,initial-scale=1"
-    } as MetaDescriptor;
+    };
 }
 
 export function links() {
