@@ -1,6 +1,7 @@
-import { Theme } from "@encode42/remix-extras";
+import { storageBuilder, Theme } from "@encode42/remix-extras";
 import { api } from "~/util/api.server";
 import { config } from "~/data/config";
+import { getEnv } from "~/util/getEnv.server";
 
 let theme: Theme;
 
@@ -21,6 +22,10 @@ if (process.env.NODE_ENV === "production") {
 function init() {
     return new Theme({
         "colorScheme": config.colorScheme,
+        "storage": storageBuilder.cookie({
+            "name": "_theme",
+            "secret": getEnv("COOKIE_AUTH_SECRET", "insecure")
+        }),
         api
     });
 }
