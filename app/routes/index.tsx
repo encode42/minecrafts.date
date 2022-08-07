@@ -1,7 +1,7 @@
 import { ReactNode, useMemo, useState } from "react";
 import { useLoaderData, useLocation, useNavigate } from "@remix-run/react";
 import { Link } from "@encode42/remix-extras";
-import { ActionIcon, Group, MultiSelect, Stack, Text, TextInput, Title, CloseButton, Collapse, Button, List, Box, Code, Badge } from "@mantine/core";
+import { ActionIcon, Group, MultiSelect, Stack, Text, TextInput, Title, CloseButton, Collapse, Button, Box, Badge, Divider, Center, useMantineColorScheme, Container, Space } from "@mantine/core";
 import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
 import { showNotification } from "@mantine/notifications";
 import { ThemePaper } from "@encode42/mantine-extras";
@@ -37,6 +37,8 @@ export async function loader(): Promise<LoaderResult> {
 }
 
 export default function IndexPage() {
+    const { colorScheme } = useMantineColorScheme();
+
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
 
@@ -115,17 +117,26 @@ export default function IndexPage() {
 
     return (
         <StandardLayout>
-            <Stack>
-                <ThemePaper>
+            <Stack spacing="xl">
+                <ThemePaper p="xl" sx={theme => ({
+                    "background": colorScheme === "dark" ? theme.colors.dark[9] : theme.colors.gray[1]
+                })}>
                     <Stack>
-                        <Title>{details.name}</Title>
-                        <Text>You may ask yourself:</Text>
-                        <List>
-                            <List.Item>How old is Minecraft?</List.Item>
-                            <List.Item>Where is the age of that version?</List.Item>
-                            <List.Item>Am I old?</List.Item>
-                        </List>
-                        <Text>Well, this website answers those questions!</Text>
+                        <Center>
+                            <Title sx={theme => ({
+                                "color": colorScheme === "dark" ? theme.colors.gray[2] : theme.black
+                            })}>{details.name}</Title>
+                        </Center>
+                        <Divider />
+                        <Container size="md" sx={{
+                            "width": "100%"
+                        }}>
+                            <Text size="lg" weight="bold" align="left">"How old is Minecraft?"</Text>
+                            <Text size="lg" weight="bold" align="center">"Where is the age of that version?"</Text>
+                            <Text size="lg" weight="bold" align="right">"Am I old?"</Text>
+                        </Container>
+                        <Space h="md" />
+                        <Text size="lg" align="center">...you may ask yourself. This website contains the answers to those questions!</Text>
                     </Stack>
                 </ThemePaper>
                 <Group sx={{
@@ -151,16 +162,18 @@ export default function IndexPage() {
                         setTypes(value);
                     }} />
                 </Collapse>
-                {!debouncedSearch && (
-                    <ThemePaper>
-                        <Stack>
-                            <VersionTitle id={data.versions[data.oldest.all].id} badge="Oldest" released={data.versions[data.oldest.all].date.released} />
-                            <Text>This is the oldest public version of Minecraft.</Text>
-                            <Text>It was released {data.versions[data.oldest.all].date.age} ago!</Text>
-                        </Stack>
-                    </ThemePaper>
-                )}
-                {listedVersions}
+                <Stack>
+                    {!debouncedSearch && (
+                        <ThemePaper>
+                            <Stack>
+                                <VersionTitle id={data.versions[data.oldest.all].id} badge="Oldest" released={data.versions[data.oldest.all].date.released} />
+                                <Text>This is the oldest public version of Minecraft.</Text>
+                                <Text>It was released {data.versions[data.oldest.all].date.age} ago!</Text>
+                            </Stack>
+                        </ThemePaper>
+                    )}
+                    {listedVersions}
+                </Stack>
             </Stack>
         </StandardLayout>
     );
