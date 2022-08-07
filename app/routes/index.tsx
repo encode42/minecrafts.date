@@ -1,14 +1,14 @@
-import { ReactNode, useMemo, useState } from "react";
-import { useLoaderData, useLocation, useNavigate } from "@remix-run/react";
+import { ReactNode, useEffect, useMemo, useState } from "react";
+import { useFetcher, useLoaderData, useLocation, useNavigate } from "@remix-run/react";
 import { Link } from "@encode42/remix-extras";
-import { ActionIcon, Group, MultiSelect, Stack, Text, TextInput, Title, CloseButton, Collapse, Button, Badge, Space, Image } from "@mantine/core";
+import { ActionIcon, Group, MultiSelect, Stack, Text, TextInput, Title, CloseButton, Collapse, Button, Badge, Space, Image, Loader } from "@mantine/core";
 import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
 import { showNotification } from "@mantine/notifications";
 import { ThemePaper } from "@encode42/mantine-extras";
-import { IconBox, IconLink, IconSearch, IconShare } from "@tabler/icons";
+import { IconArrowRight, IconBox, IconLink, IconSearch, IconShare } from "@tabler/icons";
 import { StandardLayout } from "~/layout/StandardLayout";
 import { details } from "~/data/details";
-import { getVersions, Versions } from "~/util/getVersions.server";
+import { getVersions, Version, Versions } from "~/util/getVersions.server";
 import { ImportantPaper } from "~/component/ImportantPaper";
 import { ImportantTitle } from "~/component/ImportantTitle";
 import badge from "a/logo/badge.png";
@@ -31,6 +31,13 @@ interface VersionTitleProps {
     "released": string
 }
 
+interface VersionEntryProps {
+    "version": Version,
+    "isNewest"?: boolean,
+    "isOldest"?: boolean,
+    "onCopy"?: () => Promise<void>
+}
+
 interface LoaderResult extends Versions {}
 
 function VersionTitle({ id, badge, released }: VersionTitleProps) {
@@ -47,6 +54,33 @@ function VersionTitle({ id, badge, released }: VersionTitleProps) {
     );
 }
 
+function VersionEntry({ version, isNewest, isOldest, onCopy }: VersionEntryProps) {
+    return (
+        <LazyLoad once>
+            <ThemePaper id={version.id}>
+                <Stack>
+                    <VersionTitle id={version.id} badge={isNewest ? `Newest ${version.type}` : isOldest ? `Oldest ${version.type}` : undefined} released={version.date.released} />
+                    <Group position="apart" sx={{
+                        "alignItems": "flex-end"
+                    }}>
+                        <Text>Released {version.date.age} ago</Text>
+                        <Group>
+                            <ActionIcon color="primary" size="lg" variant="filled" onClick={async () => {
+                                await onCopy?.();
+                            }}>
+                                <IconLink />
+                            </ActionIcon>
+                            <ActionIcon component={Link} to={`/${version.id}`} color="primary" size="lg" variant="filled">
+                                <IconArrowRight color="white" />
+                            </ActionIcon>
+                        </Group>
+                    </Group>
+                </Stack>
+            </ThemePaper>
+        </LazyLoad>
+    );
+}
+
 export async function loader(): Promise<LoaderResult> {
     return await getVersions();
 }
@@ -58,76 +92,94 @@ export default function IndexPage() {
     const data = useLoaderData<LoaderResult>();
     const navigate = useNavigate();
 
+    const searchFetcher = useFetcher();
     const [search, setSearch] = useState("");
+    const [searching, searchingHandler] = useDisclosure(false);
+
     const [types, setTypes] = useState<(string | null)[]>(["release", searchParams.get("type")]);
     const [openFilters, openFiltersHandler] = useDisclosure(false);
     const [listedVersions, setListedVersions] = useState<ReactNode[]>([]);
 
     const [debouncedSearch] = useDebouncedValue(search, 250);
 
+    function createEntry(version: Version, key?: string) {
+        const isNewest = version.id === data.versions[data.newest[version.type]].id;
+        const isOldest = version.id === data.versions[data.oldest[version.type]].id;
+
+        return (
+            <VersionEntry key={key} version={version} isNewest={isNewest} isOldest={isOldest} onCopy={async () => {
+                // Add the selected categories if required
+                let hash = `#${version.id}`;
+                if (version.type !== "release") {
+                    searchParams.set("type", version.type);
+
+                    hash = `?${searchParams.toString()}${hash}`;
+                }
+
+                navigate(hash, {
+                    "replace": true
+                });
+
+                // Copy link to clipboard
+                await navigator.clipboard.writeText(window.location.href);
+
+                showNotification({
+                    "title": "Successfully Copied!",
+                    "message": "The link to this version has been copied to your clipboard."
+                });
+            }} />
+        );
+    }
+
+    useEffect(() => {
+        searchFetcher.submit({
+            "data": JSON.stringify({
+                "query": search
+            })
+        }, {
+            "action": "/api/v1/search",
+            "method": "post"
+        });
+    }, [debouncedSearch]);
+
     useMemo(() => {
-        const newList: typeof listedVersions = [];
+        if (searchFetcher.type === "actionSubmission") {
+            // Show loading icon
+            searchingHandler.open();
+        }
 
-        for (const version of data.versions) {
-            // Search for versions starting with query
-            if (debouncedSearch && !version.id.startsWith(debouncedSearch)) {
-                continue;
+        if (searchFetcher.type === "done") {
+            // Hide loading icon
+            searchingHandler.close();
+
+            // Search has results
+            if (searchFetcher.data) {
+                // Get the versions from the indexes
+                const newList: typeof listedVersions = [];
+                for (const index of searchFetcher.data) {
+                    const version = data.versions[index];
+
+                    newList.push(createEntry(version, version.id));
+                }
+                setListedVersions(newList);
             }
+        }
+    }, [searchFetcher.type]);
 
+    useMemo(() => {
+        setSearch("");
+
+        const newList: typeof listedVersions = [];
+        for (const version of data.versions) {
             // Exclude types that aren't selected
             if (types.length > 0 && !types.includes(version.type)) {
                 continue;
             }
 
-            const isNewest = version.id === data.versions[data.newest[version.type]].id;
-            const isOldest = version.id === data.versions[data.oldest[version.type]].id;
-
-            newList.push(
-                <LazyLoad key={version.id} once>
-                    <ThemePaper id={version.id}>
-                        <Stack>
-                            <VersionTitle id={version.id} badge={isNewest ? `Newest ${version.type}` : isOldest ? `Oldest ${version.type}` : undefined} released={version.date.released} />
-                            <Group position="apart" sx={{
-                                "alignItems": "flex-end"
-                            }}>
-                                <Text>Released {version.date.age} ago</Text>
-                                <Group>
-                                    <ActionIcon color="primary" size="lg" variant="filled" onClick={async () => {
-                                        // Add the selected categories if required
-                                        let hash = `#${version.id}`;
-                                        if (version.type !== "release") {
-                                            searchParams.set("type", version.type);
-
-                                            hash = `?${searchParams.toString()}${hash}`;
-                                        }
-
-                                        navigate(hash, {
-                                            "replace": true
-                                        });
-
-                                        // Copy link to clipboard
-                                        await navigator.clipboard.writeText(window.location.href);
-
-                                        showNotification({
-                                            "title": "Successfully Copied!",
-                                            "message": "The link to this version has been copied to your clipboard."
-                                        });
-                                    }}>
-                                        <IconLink />
-                                    </ActionIcon>
-                                    <ActionIcon component={Link} to={`/${version.id}`} color="primary" size="lg" variant="filled">
-                                        <IconShare color="white" />
-                                    </ActionIcon>
-                                </Group>
-                            </Group>
-                        </Stack>
-                    </ThemePaper>
-                </LazyLoad>
-            );
+            newList.push(createEntry(version, version.id));
         }
-
         setListedVersions(newList);
-    }, [debouncedSearch, types]);
+    }, [types]);
 
     return (
         <StandardLayout>
@@ -148,7 +200,7 @@ export default function IndexPage() {
                 <Group sx={{
                     "alignItems": "flex-end"
                 }}>
-                    <TextInput label="Search" icon={<IconSearch />} rightSectionWidth={30} rightSection={
+                    <TextInput label="Search" icon={searching ? <Loader size="sm" /> : <IconSearch />} rightSectionWidth={30} rightSection={
                         <CloseButton variant="transparent" size="sm" onClick={() => {
                             setSearch("");
                         }} />
