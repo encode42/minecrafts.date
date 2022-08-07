@@ -10,6 +10,7 @@ import { theme } from "~/util/theme.server";
 import { details } from "~/data/details";
 import { config } from "~/data/config";
 import montserrat from "a/font/montserrat.ttf";
+import dotenv from "dotenv";
 
 interface BasicDocumentProps extends PropsWithChildren {
     "colorScheme"?: ColorScheme

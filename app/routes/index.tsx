@@ -128,13 +128,6 @@ export default function IndexPage() {
                         <Text>Well, this website answers those questions!</Text>
                     </Stack>
                 </ThemePaper>
-                <ThemePaper>
-                    <Stack>
-                        <VersionTitle id={data.versions[data.oldest.all].id} badge="Oldest" released={data.versions[data.oldest.all].date.released} />
-                        <Text>This is the oldest public version of Minecraft.</Text>
-                        <Text>It was released {data.versions[data.oldest.all].date.age} ago!</Text>
-                    </Stack>
-                </ThemePaper>
                 <Group sx={{
                     "alignItems": "flex-end"
                 }}>
@@ -158,6 +151,15 @@ export default function IndexPage() {
                         setTypes(value);
                     }} />
                 </Collapse>
+                {!debouncedSearch && (
+                    <ThemePaper>
+                        <Stack>
+                            <VersionTitle id={data.versions[data.oldest.all].id} badge="Oldest" released={data.versions[data.oldest.all].date.released} />
+                            <Text>This is the oldest public version of Minecraft.</Text>
+                            <Text>It was released {data.versions[data.oldest.all].date.age} ago!</Text>
+                        </Stack>
+                    </ThemePaper>
+                )}
                 {listedVersions}
             </Stack>
         </StandardLayout>
