@@ -15,6 +15,7 @@
   "dependencies": {
     "@emotion/react": "^11.10.0",
     "@emotion/server": "^11.10.0",
+    "@encode42/mantine-extras": "^4.1.2",
     "@encode42/remix-extras": "^4.2.1",
     "@mantine/core": "^5.0.3",
     "@mantine/form": "^5.0.3",

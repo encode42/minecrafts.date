@@ -1,7 +1,7 @@
 import { ReactNode, useMemo, useState } from "react";
 import { useLoaderData, useLocation, useNavigate } from "@remix-run/react";
 import { Link } from "@encode42/remix-extras";
-import { ActionIcon, Group, MultiSelect, Stack, Text, TextInput, Title, CloseButton, Collapse, Button, Box, Badge, Container, Space, Image } from "@mantine/core";
+import { ActionIcon, Group, MultiSelect, Stack, Text, TextInput, Title, CloseButton, Collapse, Button, Badge, Space, Image } from "@mantine/core";
 import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
 import { showNotification } from "@mantine/notifications";
 import { ThemePaper } from "@encode42/mantine-extras";
@@ -20,6 +20,9 @@ TODO:
 - More stats
 - Ability to favorite a version
 - Add "and" to final unit
+- More filters
+  * Year range
+  * X ago (inc & exc)
  */
 
 interface VersionTitleProps {
@@ -56,7 +59,7 @@ export default function IndexPage() {
     const navigate = useNavigate();
 
     const [search, setSearch] = useState("");
-    const [types, setTypes] = useState<string[]>(searchParams.get("types")?.split(",") ?? ["release"]);
+    const [types, setTypes] = useState<(string | null)[]>(["release", searchParams.get("type")]);
     const [openFilters, openFiltersHandler] = useDisclosure(false);
     const [listedVersions, setListedVersions] = useState<ReactNode[]>([]);
 
@@ -92,8 +95,8 @@ export default function IndexPage() {
                                     <ActionIcon color="primary" size="lg" variant="filled" onClick={async () => {
                                         // Add the selected categories if required
                                         let hash = `#${version.id}`;
-                                        if (types.length > 0 && !(types.length === 1 && types[0] === "release")) {
-                                            searchParams.set("types", types.join(","));
+                                        if (version.type !== "release") {
+                                            searchParams.set("type", version.type);
 
                                             hash = `?${searchParams.toString()}${hash}`;
                                         }

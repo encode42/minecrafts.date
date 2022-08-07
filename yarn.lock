@@ -1070,17 +1070,17 @@
   resolved "https://registry.yarnpkg.com/@emotion/weak-memoize/-/weak-memoize-0.3.0.tgz#ea89004119dc42db2e1dba0f97d553f7372f6fcb"
   integrity sha512-AHPmaAx+RYfZz0eYu6Gviiagpmiyw98ySSlQvCUhVGDRtDFe4DBS0x1bSjdF3gqUDYOczB+yYvBTtEylYSdRhg==
 
-"@encode42/mantine-extras@^4.1.1":
-  version "4.1.1"
-  resolved "https://registry.yarnpkg.com/@encode42/mantine-extras/-/mantine-extras-4.1.1.tgz#7f1b4daa2bb1852dbbe51e4d1805cd7d7eee76a7"
-  integrity sha512-6ALQ+9YJ6aunqyHd4PEEQnHQIEjI2EZAl2sAwWcCngRf5PXOTqsjjYAqH7BIQKHCuAmFXZaspJlizqDXCxxOSA==
+"@encode42/mantine-extras@^4.1.1", "@encode42/mantine-extras@^4.1.2":
+  version "4.1.2"
+  resolved "https://registry.yarnpkg.com/@encode42/mantine-extras/-/mantine-extras-4.1.2.tgz#3ef44275de332bf13b48def06694265255cbbe2c"
+  integrity sha512-/gAuhXIOxw9YVt2Jytfd6cR1eJLZlmiFx0SCbfCTfxv78VICAI9M4I8Wub8T8mWQjLI+zOMTq4i50OsA39DLuw==
   dependencies:
     "@emotion/react" "^11.10.0"
     "@emotion/server" "^11.10.0"
-    "@mantine/core" "^5.0.2"
-    "@mantine/hooks" "^5.0.2"
-    "@mantine/notifications" "^5.0.2"
-    "@mantine/prism" "^5.0.2"
+    "@mantine/core" "^5.0.3"
+    "@mantine/hooks" "^5.0.3"
+    "@mantine/notifications" "^5.0.3"
+    "@mantine/prism" "^5.0.3"
     "@mdx-js/react" "^2.1.2"
     "@tabler/icons" "^1.78.0"
     deepmerge "^4.2.0"
@@ -1216,7 +1216,7 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
-"@mantine/core@^5.0.2", "@mantine/core@^5.0.3":
+"@mantine/core@^5.0.3":
   version "5.0.3"
   resolved "https://registry.yarnpkg.com/@mantine/core/-/core-5.0.3.tgz#20c5b3ee24a54d052ad775d09fd2178463c4d8f2"
   integrity sha512-FUcZBaxEqssbFck3hy+xP0zYAaL3hVjKCsYFZ3LZMK6lm3amWTBV6RLBIQEfMh3zSu6/qXhaj4CqCGf52EL5TA==
@@ -1234,7 +1234,7 @@
   dependencies:
     klona "^2.0.5"
 
-"@mantine/hooks@^5.0.2", "@mantine/hooks@^5.0.3":
+"@mantine/hooks@^5.0.3":
   version "5.0.3"
   resolved "https://registry.yarnpkg.com/@mantine/hooks/-/hooks-5.0.3.tgz#55fd0658116874294b766505ba7696f95fe5562a"
   integrity sha512-DdbxUQEv+kGYmbVNRS+pU4MVxOzTKrLPeepJ52L9MfstbpFfafw1Mbyxm4fTDyDGzJUtTWLPER6NZRLmm8kilw==
@@ -1246,7 +1246,7 @@
   dependencies:
     "@mantine/utils" "5.0.3"
 
-"@mantine/notifications@^5.0.2", "@mantine/notifications@^5.0.3":
+"@mantine/notifications@^5.0.3":
   version "5.0.3"
   resolved "https://registry.yarnpkg.com/@mantine/notifications/-/notifications-5.0.3.tgz#b749c840a7e2b553178628fb767ee452f77c77c7"
   integrity sha512-tvkrWnXzTPYQFsAu2AvtfevKGr3dKPagjwYDeWM60SlO1FyBX1sg47YweVt/JBlmJFKVmVLOFhSZFx0jVvlSeA==
@@ -1254,7 +1254,7 @@
     "@mantine/utils" "5.0.3"
     react-transition-group "4.4.2"
 
-"@mantine/prism@^5.0.2":
+"@mantine/prism@^5.0.3":
   version "5.0.3"
   resolved "https://registry.yarnpkg.com/@mantine/prism/-/prism-5.0.3.tgz#2ac475974f7eb1c9cf75c129a2f51ff43a4c1a50"
   integrity sha512-/jMQchsRiDfsnSYMfZ4ruIRdbHRbhnDy0Jfc8ZUr6Yv3v0akdTS8pK5zGz8n5AskcNWXskmKgZjv+H7MpvvzCg==
@@ -2627,9 +2627,9 @@ data-uri-to-buffer@^3.0.1:
   integrity sha512-WboRycPNsVw3B3TL559F7kuBUM4d8CgMEvk6xEJlOp7OBPjt6G7z8WMWlD2rOFZLk6OYfFIUGsCOWzcQH9K2og==
 
 deasync@^0.1.0:
-  version "0.1.27"
-  resolved "https://registry.yarnpkg.com/deasync/-/deasync-0.1.27.tgz#2a669a68d2d43bf8effa5a7efe7d8e1f1e447216"
-  integrity sha512-aCt6M9Ilkvs8TKIchmibUpNe/QSp9UNQL6YkvVraAce/SFFZCvYw3lQevl6MlUDn8Xr4QD4wYTerWH22yn+ODQ==
+  version "0.1.28"
+  resolved "https://registry.yarnpkg.com/deasync/-/deasync-0.1.28.tgz#9b447b79b3f822432f0ab6a8614c0062808b5ad2"
+  integrity sha512-QqLF6inIDwiATrfROIyQtwOQxjZuek13WRYZ7donU5wJPLoP67MnYxA6QtqdvdBy2mMqv5m3UefBVdJjvevOYg==
   dependencies:
     bindings "^1.5.0"
     node-addon-api "^1.7.1"
