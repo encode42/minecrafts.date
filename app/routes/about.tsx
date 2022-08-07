@@ -5,9 +5,17 @@ import { StandardLayout } from "~/layout/StandardLayout";
 import { details } from "~/data/details";
 import { Anchor } from "@encode42/remix-extras";
 import { HomeLink } from "~/component/HomeLink";
+import { prefixTitle } from "~/util/prefixTitle";
+import { MetaDescriptor } from "@remix-run/node";
 
 interface AboutEntry extends PropsWithChildren {
     "title": string
+}
+
+export function meta() {
+    return {
+        "title": prefixTitle("About")
+    } as MetaDescriptor;
 }
 
 function AboutEntry({ title, children }: AboutEntry) {

@@ -1,7 +1,7 @@
 import { ReactNode, useMemo, useState } from "react";
 import { useLoaderData, useLocation, useNavigate } from "@remix-run/react";
 import { Link } from "@encode42/remix-extras";
-import { ActionIcon, Group, MultiSelect, Stack, Text, TextInput, Title, CloseButton, Collapse, Button, Box, Badge, Divider, Center, useMantineColorScheme, Container, Space } from "@mantine/core";
+import { ActionIcon, Group, MultiSelect, Stack, Text, TextInput, Title, CloseButton, Collapse, Button, Box, Badge, Divider, Center, useMantineColorScheme, Container, Space, Image } from "@mantine/core";
 import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
 import { showNotification } from "@mantine/notifications";
 import { ThemePaper } from "@encode42/mantine-extras";
@@ -9,6 +9,9 @@ import { IconBox, IconLink, IconSearch, IconShare } from "@tabler/icons";
 import { StandardLayout } from "~/layout/StandardLayout";
 import { details } from "~/data/details";
 import { getVersions, Versions } from "~/util/getVersions.server";
+import { ImportantPaper } from "~/component/ImportantPaper";
+import { ImportantTitle } from "~/component/ImportantTitle";
+import badge from "a/logo/badge.png";
 
 interface VersionTitleProps {
     "id": string,
@@ -118,16 +121,12 @@ export default function IndexPage() {
     return (
         <StandardLayout>
             <Stack spacing="xl">
-                <ThemePaper p="xl" sx={theme => ({
-                    "background": colorScheme === "dark" ? theme.colors.dark[9] : theme.colors.gray[1]
-                })}>
+                <ImportantPaper>
                     <Stack>
-                        <Center>
-                            <Title sx={theme => ({
-                                "color": colorScheme === "dark" ? theme.colors.gray[2] : theme.black
-                            })}>{details.name}</Title>
-                        </Center>
-                        <Divider />
+                        <ImportantTitle.Wrapper custom>
+                            <Image src={badge} width={42} />
+                            <ImportantTitle ml="md">{details.name}</ImportantTitle>
+                        </ImportantTitle.Wrapper>
                         <Container size="md" sx={{
                             "width": "100%"
                         }}>
@@ -138,7 +137,7 @@ export default function IndexPage() {
                         <Space h="md" />
                         <Text size="lg" align="center">...you may ask yourself. This website contains the answers to those questions!</Text>
                     </Stack>
-                </ThemePaper>
+                </ImportantPaper>
                 <Group sx={{
                     "alignItems": "flex-end"
                 }}>

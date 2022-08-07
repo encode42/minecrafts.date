@@ -10,7 +10,12 @@ import { theme } from "~/util/theme.server";
 import { details } from "~/data/details";
 import { config } from "~/data/config";
 import montserrat from "a/font/montserrat.ttf";
+import badge from "a/logo/badge.png";
 import dotenv from "dotenv";
+
+interface MetaOptions {
+    "data": LoaderResult
+}
 
 interface BasicDocumentProps extends PropsWithChildren {
     "colorScheme"?: ColorScheme
@@ -23,11 +28,18 @@ interface DocumentProps extends BasicDocumentProps {
 
 interface LoaderResult {
     "theme": getResult,
-    "themeSetRoute": string
+    "themeSetRoute": string,
+    "websiteURL": string | undefined
 }
 
-export function meta() {
+export function meta({ data }: MetaOptions) {
     return {
+        "title": details.name,
+        "description": "A simple website that displays the age of various Minecraft versions.",
+        "og:url": data.websiteURL,
+        "og:image": badge,
+        "twitter:card": "summary",
+        "themeColor": "#40c057",
         "charset": "utf-8",
         "viewport": "width=device-width,initial-scale=1"
     } as MetaDescriptor;
@@ -36,12 +48,25 @@ export function meta() {
 export function links() {
     return [{
         "rel": "icon",
-        "href": "/favicon/favicon.svg",
-        "type": "image/svg+xml"
+        "sizes": "32x32",
+        "href": "/favicon/favicon-32x32.png",
+        "type": "image/png"
     }, {
         "rel": "icon",
-        "href": "/favicon/favicon.png",
+        "sizes": "16x16",
+        "href": "/favicon/favicon-16x16.png",
         "type": "image/png"
+    }, {
+        "rel": "apple-touch-icon",
+        "sizes": "180x180",
+        "href": "/favicon/apple-touch-icon.png"
+    }, {
+        "rel": "mask-icon",
+        "href": "/favicon/safari-pinned-tab.svg",
+        "color": "#40c057"
+    }, {
+        "rel": "manifest",
+        "href": "/favicon/site.webmanifest"
     }];
 }
 
@@ -52,7 +77,8 @@ const fonts = {
 export async function loader({ request }: RouteRequest): Promise<LoaderResult> {
     return {
         "theme": await theme.get(request),
-        "themeSetRoute": theme.setRoute
+        "themeSetRoute": theme.setRoute,
+        "websiteURL": process.env.WEBSITE_URL
     };
 }
 
@@ -68,7 +94,6 @@ function BasicDocument({ colorScheme = config.colorScheme, children }: BasicDocu
     return (
         <html lang="en">
             <head>
-                <title>{details.name}</title>
                 <Meta />
                 <Links />
                 <StylesPlaceholder />

@@ -1,13 +1,31 @@
-import { RouteParams } from "@encode42/remix-extras";
-import { getVersions, Version } from "~/util/getVersions.server";
+import { MetaDescriptor } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { Title, Text, Stack } from "@mantine/core";
+import { RouteParams } from "@encode42/remix-extras";
+import { Text, Stack } from "@mantine/core";
 import { StandardLayout } from "~/layout/StandardLayout";
-import { ThemePaper } from "@encode42/mantine-extras";
 import { HomeLink } from "~/component/HomeLink";
+import { ImportantPaper } from "~/component/ImportantPaper";
+import { ImportantTitle } from "~/component/ImportantTitle";
+import { getVersions, Version } from "~/util/getVersions.server";
+import { prefixTitle } from "~/util/prefixTitle";
 
-export interface LoaderResult {
+interface MetaOptions {
+    "data": LoaderResult
+}
+
+interface LoaderResult {
     "version": Version | undefined
+}
+
+export function meta({ data }: MetaOptions): MetaDescriptor {
+    if (!data.version) {
+        return {};
+    }
+
+    return {
+        "title": prefixTitle(data.version.id),
+        "description": `Released on ${data.version.date.released}. That was ${data.version.date.age} ago!`
+    };
 }
 
 export async function loader({ params }: RouteParams): Promise<LoaderResult> {
@@ -31,24 +49,26 @@ export default function VersionPage() {
 
     return (
         <StandardLayout>
-            {data.version ? (
-                <ThemePaper>
-                    <Stack>
-                        <Title>Minecraft {data.version.id}</Title>
-                        <Text>This version was released on {data.version.date.released}.</Text>
-                        <Text>That was {data.version.date.age} ago!</Text>
-                        <HomeLink />
-                    </Stack>
-                </ThemePaper>
-            ) : (
-                <ThemePaper>
-                    <Stack>
-                        <Title>Error!</Title>
-                        <Text>The specified version does not exist.</Text>
-                        <HomeLink />
-                    </Stack>
-                </ThemePaper>
-            )}
+            <ImportantPaper>
+                <Stack spacing="xl">
+                    {data.version ? (
+                        <>
+                            <ImportantTitle.Wrapper>Minecraft {data.version.id}</ImportantTitle.Wrapper>
+                            <Stack spacing="xs">
+                                <Text size="lg">This version was released on <Text weight="bold" component="span">{data.version.date.released}</Text>.</Text>
+                                <Text size="lg">That was <Text weight="bold" component="span">{data.version.date.age}</Text> ago!</Text>
+                            </Stack>
+                            <HomeLink />
+                        </>
+                    ) : (
+                        <>
+                            <ImportantTitle>Error!</ImportantTitle>
+                            <Text size="lg" weight="bold">The specified version does not exist.</Text>
+                            <HomeLink />
+                        </>
+                    )}
+                </Stack>
+            </ImportantPaper>
         </StandardLayout>
     );
 };
