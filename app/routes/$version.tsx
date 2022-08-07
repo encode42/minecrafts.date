@@ -25,7 +25,8 @@ export function meta({ data }: MetaOptions): MetaDescriptor {
 
     return {
         "title": data.isBot ? `Minecraft ${data.version.id}` : prefixTitle(data.version.id),
-        "description": `Released ${data.version.date.age} ago!`
+        "description": `Released ${data.version.date.age} ago!`,
+        "og:image": null
     };
 }
 
