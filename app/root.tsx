@@ -11,7 +11,7 @@ import { details } from "~/data/details";
 import { config } from "~/data/config";
 import montserrat from "a/font/montserrat.ttf";
 import badge from "a/logo/badge.png";
-import dotenv from "dotenv";
+import "dotenv/config";
 
 interface MetaOptions {
     "data": LoaderResult
