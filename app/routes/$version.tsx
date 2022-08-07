@@ -1,6 +1,6 @@
 import { MetaDescriptor } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { RouteParams } from "@encode42/remix-extras";
+import { RouteOptions } from "@encode42/remix-extras";
 import { Text, Stack } from "@mantine/core";
 import { StandardLayout } from "~/layout/StandardLayout";
 import { HomeLink } from "~/component/HomeLink";
@@ -14,7 +14,8 @@ interface MetaOptions {
 }
 
 interface LoaderResult {
-    "version": Version | undefined
+    "version": Version | undefined,
+    "isBot": boolean
 }
 
 export function meta({ data }: MetaOptions): MetaDescriptor {
@@ -23,12 +24,12 @@ export function meta({ data }: MetaOptions): MetaDescriptor {
     }
 
     return {
-        "title": prefixTitle(data.version.id),
+        "title": data.isBot ? data.version.id : prefixTitle(data.version.id),
         "description": `Released on ${data.version.date.released}. That was ${data.version.date.age} ago!`
     };
 }
 
-export async function loader({ params }: RouteParams): Promise<LoaderResult> {
+export async function loader({ request, params }: RouteOptions): Promise<LoaderResult> {
     const versions = await getVersions();
 
     let existingVersion: Version | undefined;
@@ -39,8 +40,11 @@ export async function loader({ params }: RouteParams): Promise<LoaderResult> {
         }
     }
 
+    const userAgent = request.headers.get("user-agent");
+
     return {
-        "version": existingVersion
+        "version": existingVersion,
+        "isBot": userAgent ? userAgent.includes("Discordbot") : false
     };
 }
 
