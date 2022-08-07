@@ -24,8 +24,8 @@ export function meta({ data }: MetaOptions): MetaDescriptor {
     }
 
     return {
-        "title": data.isBot ? data.version.id : prefixTitle(data.version.id),
-        "description": `Released on ${data.version.date.released}. That was ${data.version.date.age} ago!`
+        "title": data.isBot ? `Minecraft ${data.version.id}` : prefixTitle(data.version.id),
+        "description": `This version was released on ${data.version.date.released}. That was ${data.version.date.age} ago!`
     };
 }
 
