@@ -1,6 +1,5 @@
 import { fetch } from "@remix-run/node";
 import humanizeDuration from "humanize-duration";
-import { generateIndex, index } from "~/util/index.server";
 
 export interface Version {
     "id": string,
@@ -80,16 +79,10 @@ export async function getVersions(): Promise<Versions> {
         oldest[type] = typeVersions[typeVersions.length - 1];
     }
 
-    const result = {
+    return {
         versions,
         newest,
         oldest,
         types
     };
-
-    if (!index || response.headers.get("x-cache") !== "HIT") {
-        generateIndex(result);
-    }
-
-    return result;
 }

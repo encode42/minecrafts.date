@@ -1,18 +1,19 @@
-import { ReactNode, useEffect, useMemo, useState } from "react";
-import { useFetcher, useLoaderData, useLocation, useNavigate } from "@remix-run/react";
+import { ReactNode, useMemo, useState } from "react";
+import { useLoaderData, useLocation, useNavigate } from "@remix-run/react";
 import { Link } from "@encode42/remix-extras";
 import { ActionIcon, Group, MultiSelect, Stack, Text, TextInput, Title, CloseButton, Collapse, Button, Badge, Space, Image, Loader } from "@mantine/core";
 import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
 import { showNotification } from "@mantine/notifications";
 import { ThemePaper } from "@encode42/mantine-extras";
-import { IconArrowRight, IconBox, IconLink, IconSearch, IconShare } from "@tabler/icons";
+import { IconArrowRight, IconBox, IconLink, IconSearch } from "@tabler/icons";
 import { StandardLayout } from "~/layout/StandardLayout";
 import { details } from "~/data/details";
 import { getVersions, Version, Versions } from "~/util/getVersions.server";
 import { ImportantPaper } from "~/component/ImportantPaper";
 import { ImportantTitle } from "~/component/ImportantTitle";
 import badge from "a/logo/badge.png";
-import LazyLoad from "react-lazyload";
+import LazyLoad, { forceCheck } from "react-lazyload";
+import Fuse from "fuse.js";
 
 /*
 TODO:
@@ -92,15 +93,19 @@ export default function IndexPage() {
     const data = useLoaderData<LoaderResult>();
     const navigate = useNavigate();
 
-    const searchFetcher = useFetcher();
-    const [search, setSearch] = useState("");
-    const [searching, searchingHandler] = useDisclosure(false);
+    const [fuse] = useState(new Fuse(data.versions, {
+        "threshold": 0.05,
+        "keys": [
+            "id"
+        ]
+    }));
 
+    const [search, setSearch] = useState("");
     const [types, setTypes] = useState<(string | null)[]>(["release", searchParams.get("type")]);
     const [openFilters, openFiltersHandler] = useDisclosure(false);
     const [listedVersions, setListedVersions] = useState<ReactNode[]>([]);
 
-    const [debouncedSearch] = useDebouncedValue(search, 250);
+    const [debouncedSearch] = useDebouncedValue(search, 350);
 
     function createEntry(version: Version, key?: string) {
         const isNewest = version.id === data.versions[data.newest[version.type]].id;
@@ -131,40 +136,15 @@ export default function IndexPage() {
         );
     }
 
-    useEffect(() => {
-        searchFetcher.submit({
-            "data": JSON.stringify({
-                "query": search
-            })
-        }, {
-            "action": "/api/v1/search",
-            "method": "post"
-        });
-    }, [debouncedSearch]);
-
     useMemo(() => {
-        if (searchFetcher.type === "actionSubmission") {
-            // Show loading icon
-            searchingHandler.open();
+        const results = fuse.search(debouncedSearch);
+
+        const newList: typeof listedVersions = [];
+        for (const result of results) {
+            newList.push(createEntry(result.item, result.item.id));
         }
-
-        if (searchFetcher.type === "done") {
-            // Hide loading icon
-            searchingHandler.close();
-
-            // Search has results
-            if (searchFetcher.data) {
-                // Get the versions from the indexes
-                const newList: typeof listedVersions = [];
-                for (const index of searchFetcher.data) {
-                    const version = data.versions[index];
-
-                    newList.push(createEntry(version, version.id));
-                }
-                setListedVersions(newList);
-            }
-        }
-    }, [searchFetcher.type]);
+        setListedVersions(newList);
+    }, [debouncedSearch]);
 
     useMemo(() => {
         setSearch("");
@@ -180,6 +160,10 @@ export default function IndexPage() {
         }
         setListedVersions(newList);
     }, [types]);
+
+    useMemo(() => {
+        forceCheck();
+    }, [listedVersions]);
 
     return (
         <StandardLayout>
@@ -200,7 +184,7 @@ export default function IndexPage() {
                 <Group sx={{
                     "alignItems": "flex-end"
                 }}>
-                    <TextInput label="Search" icon={searching ? <Loader size="sm" /> : <IconSearch />} rightSectionWidth={30} rightSection={
+                    <TextInput label="Search" icon={<IconSearch />} rightSectionWidth={30} rightSection={
                         <CloseButton variant="transparent" size="sm" onClick={() => {
                             setSearch("");
                         }} />
