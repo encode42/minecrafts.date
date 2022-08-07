@@ -11,7 +11,7 @@ import { details } from "~/data/details";
 import { config } from "~/data/config";
 import montserrat from "a/font/montserrat.ttf";
 import badge from "a/logo/badge.png";
-import "dotenv/config";
+import { getEnv } from "~/util/getEnv.server";
 
 interface MetaOptions {
     "data": LoaderResult
@@ -78,7 +78,7 @@ export async function loader({ request }: RouteRequest): Promise<LoaderResult> {
     return {
         "theme": await theme.get(request),
         "themeSetRoute": theme.setRoute,
-        "websiteURL": process.env.WEBSITE_URL
+        "websiteURL": getEnv("WEBSITE_URL")
     };
 }
 
