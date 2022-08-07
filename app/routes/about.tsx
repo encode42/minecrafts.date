@@ -50,6 +50,10 @@ export default function AboutPage() {
                     <Text>Luckily, this website is open-source! If you have experience with the technologies we use, you're encouraged to open a pull request.</Text>
                     <Text>If you can't fix the issue yourself, you can report the issue on <Anchor to={details.links.github} inline>GitHub</Anchor> or our <Anchor to={details.links.support} inline>support Discord</Anchor>.</Text>
                 </AboutEntry>
+                <AboutEntry title="What does the home page's header mean?">
+                    <Text>It's a reference to <Anchor to="https://youtu.be/5IsSpAOD6K8">Talking Heads - Once in a Lifetime</Anchor>!</Text>
+                    <Text>Specifically, it's a parody of the lyrics found at <Anchor to="https://youtu.be/5IsSpAOD6K8?t=70">1:10</Anchor>.</Text>
+                </AboutEntry>
                 <HomeLink />
             </Stack>
         </StandardLayout>

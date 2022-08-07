@@ -25,13 +25,14 @@ export function meta({ data }: MetaOptions): MetaDescriptor {
 
     return {
         "title": data.isBot ? `Minecraft ${data.version.id}` : prefixTitle(data.version.id),
-        "description": `This version was released on ${data.version.date.released}. That was ${data.version.date.age} ago!`
+        "description": `Released ${data.version.date.age} ago!`
     };
 }
 
 export async function loader({ request, params }: RouteOptions): Promise<LoaderResult> {
     const versions = await getVersions();
 
+    // Find the requested version
     let existingVersion: Version | undefined;
     for (const version of versions.versions) {
         if (version.id === params.version) {
@@ -40,6 +41,7 @@ export async function loader({ request, params }: RouteOptions): Promise<LoaderR
         }
     }
 
+    // Check for bots (for embeds)
     const userAgent = request.headers.get("user-agent");
 
     return {
