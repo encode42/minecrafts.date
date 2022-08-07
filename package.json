@@ -25,9 +25,11 @@
     "@remix-run/node": "^1.6.7",
     "@remix-run/react": "^1.6.7",
     "@remix-run/serve": "^1.6.7",
+    "@types/react-lazyload": "^3.2.0",
     "humanize-duration": "^3.27.2",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-lazyload": "^3.2.0"
   },
   "devDependencies": {
     "@remix-run/dev": "^1.6.7",

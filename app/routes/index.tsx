@@ -12,12 +12,11 @@ import { getVersions, Versions } from "~/util/getVersions.server";
 import { ImportantPaper } from "~/component/ImportantPaper";
 import { ImportantTitle } from "~/component/ImportantTitle";
 import badge from "a/logo/badge.png";
+import LazyLoad from "react-lazyload";
 
 /*
 TODO:
 - Improve mobile view
-- Improve performance
-  * Lazyload versions? The issue is that there's hundreds of versions being displayed at once
 - More stats
 - Ability to favorite a version
 - Add "and" to final unit
@@ -81,44 +80,46 @@ export default function IndexPage() {
             const isOldest = version.id === data.versions[data.oldest[version.type]].id;
 
             newList.push(
-                <ThemePaper key={version.id} id={version.id}>
-                    <Stack>
-                        <VersionTitle id={version.id} badge={isNewest ? `Newest ${version.type}` : isOldest ? `Oldest ${version.type}` : undefined} released={version.date.released} />
-                        <Group position="apart" sx={{
-                            "alignItems": "flex-end"
-                        }}>
-                            <Text>Released {version.date.age} ago</Text>
-                            <Group>
-                                <ActionIcon color="primary" size="lg" variant="filled" onClick={async () => {
-                                    // Add the selected categories if required
-                                    let hash = `#${version.id}`;
-                                    if (types.length > 0 && !(types.length === 1 && types[0] === "release")) {
-                                        searchParams.set("types", types.join(","));
+                <LazyLoad key={version.id} once>
+                    <ThemePaper id={version.id}>
+                        <Stack>
+                            <VersionTitle id={version.id} badge={isNewest ? `Newest ${version.type}` : isOldest ? `Oldest ${version.type}` : undefined} released={version.date.released} />
+                            <Group position="apart" sx={{
+                                "alignItems": "flex-end"
+                            }}>
+                                <Text>Released {version.date.age} ago</Text>
+                                <Group>
+                                    <ActionIcon color="primary" size="lg" variant="filled" onClick={async () => {
+                                        // Add the selected categories if required
+                                        let hash = `#${version.id}`;
+                                        if (types.length > 0 && !(types.length === 1 && types[0] === "release")) {
+                                            searchParams.set("types", types.join(","));
 
-                                        hash = `?${searchParams.toString()}${hash}`;
-                                    }
+                                            hash = `?${searchParams.toString()}${hash}`;
+                                        }
 
-                                    navigate(hash, {
-                                        "replace": true
-                                    });
+                                        navigate(hash, {
+                                            "replace": true
+                                        });
 
-                                    // Copy link to clipboard
-                                    await navigator.clipboard.writeText(window.location.href);
+                                        // Copy link to clipboard
+                                        await navigator.clipboard.writeText(window.location.href);
 
-                                    showNotification({
-                                        "title": "Successfully Copied!",
-                                        "message": "The link to this version has been copied to your clipboard."
-                                    });
-                                }}>
-                                    <IconLink />
-                                </ActionIcon>
-                                <ActionIcon component={Link} to={`/${version.id}`} color="primary" size="lg" variant="filled">
-                                    <IconShare color="white" />
-                                </ActionIcon>
+                                        showNotification({
+                                            "title": "Successfully Copied!",
+                                            "message": "The link to this version has been copied to your clipboard."
+                                        });
+                                    }}>
+                                        <IconLink />
+                                    </ActionIcon>
+                                    <ActionIcon component={Link} to={`/${version.id}`} color="primary" size="lg" variant="filled">
+                                        <IconShare color="white" />
+                                    </ActionIcon>
+                                </Group>
                             </Group>
-                        </Group>
-                    </Stack>
-                </ThemePaper>
+                        </Stack>
+                    </ThemePaper>
+                </LazyLoad>
             );
         }
 
