@@ -36,7 +36,6 @@ export function meta({ data }: MetaOptions): MetaDescriptor {
     return {
         "title": details.name,
         "description": "A simple website that displays the age of various Minecraft versions.",
-        "og:site_name": details.name,
         "og:url": data.websiteURL,
         "og:image": badge,
         "twitter:card": "summary",
