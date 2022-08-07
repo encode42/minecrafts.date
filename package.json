@@ -1,0 +1,50 @@
+{
+  "name": "remixboilerplate",
+  "version": "1.0.0",
+  "license": "MIT",
+  "private": true,
+  "sideEffects": false,
+  "scripts": {
+    "build": "remix build",
+    "start:dev": "remix dev",
+    "start:prod": "yarn run build && remix-serve build"
+  },
+  "engines": {
+    "node": ">=14"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.10.0",
+    "@emotion/server": "^11.10.0",
+    "@encode42/remix-extras": "^4.1.1",
+    "@mantine/core": "^5.0.3",
+    "@mantine/form": "^5.0.3",
+    "@mantine/hooks": "^5.0.3",
+    "@mantine/modals": "^5.0.3",
+    "@mantine/notifications": "^5.0.3",
+    "@mantine/remix": "^5.0.3",
+    "@remix-run/node": "^1.6.7",
+    "@remix-run/react": "^1.6.7",
+    "@remix-run/serve": "^1.6.7",
+    "humanize-duration": "^3.27.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@remix-run/dev": "^1.6.7",
+    "@types/humanize-duration": "^3.27.1",
+    "@types/react": "^18.0.15",
+    "@types/react-dom": "^18.0.6",
+    "eslint": "^8.21.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jsx-a11y": "^6.6.1",
+    "eslint-plugin-markdown": "^3.0.0",
+    "eslint-plugin-promise": "^6.0.0",
+    "eslint-plugin-react": "^7.30.1",
+    "eslint-plugin-security": "^1.5.0",
+    "eslint-plugin-sonarjs": "^0.14.0",
+    "eslint-plugin-tsdoc": "^0.2.16",
+    "eslint-plugin-unicorn": "^43.0.2",
+    "typescript": "^4.7.4",
+    "ynpx": "^2.1.3"
+  }
+}
