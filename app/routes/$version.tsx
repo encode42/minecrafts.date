@@ -9,7 +9,7 @@ import { ImportantTitle } from "~/component/ImportantTitle";
 import { getVersions, Version } from "~/util/getVersions.server";
 import { prefixTitle } from "~/util/prefixTitle";
 import { AnchorIcon } from "~/component/AnchorIcon";
-import { IconFileDiff } from "@tabler/icons";
+import { IconNews } from "@tabler/icons";
 
 interface MetaOptions {
     "data": LoaderResult
@@ -96,7 +96,7 @@ export default function VersionPage() {
                                 <Text size="lg">This version was released on <Text weight="bold" component="span">{data.version.date.released}</Text>.</Text>
                                 <Text size="lg">That was <Text weight="bold" component="span">{data.version.date.age}</Text> ago!</Text>
                             </Stack>
-                            <AnchorIcon icon={<IconFileDiff />} to={data.changelog} target="_blank">Changelog</AnchorIcon>
+                            <AnchorIcon icon={<IconNews />} to={data.changelog} target="_blank">Changelog</AnchorIcon>
                             <HomeLink />
                         </>
                     ) : (
