@@ -1,22 +1,33 @@
-import { ThemeToggle } from "@encode42/mantine-extras";
-import { ActionIcon, Group } from "@mantine/core";
-import { IconBrandDiscord, IconBrandGithub } from "@tabler/icons";
+import { ThemeToggle, Caption } from "@encode42/mantine-extras";
+import { ActionIcon, Anchor, Center, Group, Stack } from "@mantine/core";
+import { IconBrandDiscord, IconBrandGithub, IconQuestionMark } from "@tabler/icons";
 import { Link } from "@encode42/remix-extras";
+import { details } from "~/data/details";
 
 export function Footer() {
     return (
-        <Group position="center">
-            <Link to="https://github.com">
-                <ActionIcon variant="filled" size="xl">
-                    <IconBrandGithub />
-                </ActionIcon>
-            </Link>
-            <Link to="https://discord.com">
-                <ActionIcon variant="filled" size="xl">
-                    <IconBrandDiscord />
-                </ActionIcon>
-            </Link>
-            <ThemeToggle />
-        </Group>
+        <Stack>
+            <Group position="center">
+                <Link to="/about">
+                    <ActionIcon variant="filled" size="xl">
+                        <IconQuestionMark />
+                    </ActionIcon>
+                </Link>
+                <Anchor unstyled href={details.links.github}>
+                    <ActionIcon variant="filled" size="xl">
+                        <IconBrandGithub />
+                    </ActionIcon>
+                </Anchor>
+                <Anchor unstyled href={details.links.support}>
+                    <ActionIcon variant="filled" size="xl">
+                        <IconBrandDiscord />
+                    </ActionIcon>
+                </Anchor>
+                <ThemeToggle />
+            </Group>
+            <Center>
+                <Caption>NOT AN OFFICIAL MINECRAFT PRODUCT. NOT APPROVED BY OR ASSOCIATED WITH MOJANG.</Caption>
+            </Center>
+        </Stack>
     );
 }

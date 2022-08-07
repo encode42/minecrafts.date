@@ -1,67 +1,44 @@
-import { fetch } from "@remix-run/node";
 import { ReactNode, useMemo, useState } from "react";
 import { useLoaderData, useLocation, useNavigate } from "@remix-run/react";
-import { ActionIcon, Group, MultiSelect, Stack, Text, TextInput, Title, CloseButton, Collapse, Button, List, Box } from "@mantine/core";
+import { Link } from "@encode42/remix-extras";
+import { ActionIcon, Group, MultiSelect, Stack, Text, TextInput, Title, CloseButton, Collapse, Button, List, Box, Code, Badge } from "@mantine/core";
 import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
+import { showNotification } from "@mantine/notifications";
 import { ThemePaper } from "@encode42/mantine-extras";
-import { IconBox, IconLink, IconSearch } from "@tabler/icons";
+import { IconBox, IconLink, IconSearch, IconShare } from "@tabler/icons";
 import { StandardLayout } from "~/layout/StandardLayout";
 import { details } from "~/data/details";
-import humanizeDuration from "humanize-duration";
+import { getVersions, Versions } from "~/util/getVersions.server";
 
-interface Version {
+interface VersionTitleProps {
     "id": string,
-    "type": string,
-    "date": {
-        "released": string,
-        "age": string
-    }
+    "badge"?: string,
+    "released": string
 }
 
-interface LoaderResult {
-    "versions": Version[],
-    "types": string[]
+interface LoaderResult extends Versions {}
+
+function VersionTitle({ id, badge, released }: VersionTitleProps) {
+    return (
+        <Group position="apart" sx={{
+            "alignItems": "flex-start"
+        }}>
+            <Group>
+                <Title>{id}</Title>
+                {badge && <Badge>{badge}</Badge>}
+            </Group>
+            <Text color="dimmed">{released}</Text>
+        </Group>
+    );
 }
 
 export async function loader(): Promise<LoaderResult> {
-    const response = await fetch("https://piston-meta.mojang.com/mc/game/version_manifest_v2.json");
-    const meta = await response.json();
-
-    const now = new Date();
-
-    const versions: Version[] = [];
-    const types: string[] = [];
-
-    for (const version of meta.versions) {
-        if (!types.includes(version.type)) {
-            types.push(version.type);
-        }
-
-        const release = new Date(version.releaseTime);
-
-        versions.push({
-            "id": version.id,
-            "type": version.type,
-            "date": {
-                "released": release.toLocaleDateString("en-US", {
-                    "weekday": "long",
-                    "year": "numeric",
-                    "month": "long",
-                    "day": "numeric"
-                }),
-                "age": humanizeDuration(now.getTime() - release.getTime(), { "units": ["y", "mo", "d"], "round": true })
-            }
-        });
-    }
-
-    return {
-        versions,
-        types
-    };
+    return await getVersions();
 }
 
 export default function IndexPage() {
-    const searchParams = new URLSearchParams(useLocation().search);
+    const location = useLocation();
+    const searchParams = new URLSearchParams(location.search);
 
     const data = useLoaderData<LoaderResult>();
     const navigate = useNavigate();
@@ -86,36 +63,48 @@ export default function IndexPage() {
                 continue;
             }
 
+            const isNewest = version.id === data.versions[data.newest[version.type]].id;
+            const isOldest = version.id === data.versions[data.oldest[version.type]].id;
+
             newList.push(
                 <Box id={version.id}>
                     <ThemePaper key={version.id}>
-                        <Group position="apart" sx={{
-                            "alignItems": "flex-start"
-                        }}>
-                            <Title>{version.id}</Title>
-                            <Text color="dimmed">{version.date.released}</Text>
-                        </Group>
-                        <Group position="apart" sx={{
-                            "alignItems": "flex-end"
-                        }}>
-                            <Text>Released <Text weight="bold" component="span">{version.date.age}</Text> ago</Text>
-                            <Group>
-                                <ActionIcon color="primary" size="lg" variant="filled" onClick={() => {
-                                    let hash = `#${version.id}`;
-                                    if (types.length > 0 && !(types.length === 1 && types[0] === "release")) {
-                                        searchParams.set("types", types.join(","));
+                        <Stack>
+                            <VersionTitle id={version.id} badge={isNewest ? `Newest ${version.type}` : isOldest ? `Oldest ${version.type}` : undefined} released={version.date.released} />
+                            <Group position="apart" sx={{
+                                "alignItems": "flex-end"
+                            }}>
+                                <Text>Released <Text weight="bold" component="span">{version.date.age}</Text> ago</Text>
+                                <Group>
+                                    <ActionIcon color="primary" size="lg" variant="filled" onClick={async () => {
+                                        let hash = `#${version.id}`;
+                                        if (types.length > 0 && !(types.length === 1 && types[0] === "release")) {
+                                            searchParams.set("types", types.join(","));
 
-                                        hash = `?${searchParams.toString()}${hash}`;
-                                    }
+                                            hash = `?${searchParams.toString()}${hash}`;
+                                        }
 
-                                    navigate(hash, {
-                                        "replace": true
-                                    });
-                                }}>
-                                    <IconLink />
-                                </ActionIcon>
+                                        navigate(hash, {
+                                            "replace": true
+                                        });
+
+                                        await navigator.clipboard.writeText(window.location.href);
+
+                                        showNotification({
+                                            "title": "Successfully Copied!",
+                                            "message": "The link to this version has been copied to your clipboard."
+                                        });
+                                    }}>
+                                        <IconLink />
+                                    </ActionIcon>
+                                    <Link to={`/${version.id}`}>
+                                        <ActionIcon color="primary" size="lg" variant="filled">
+                                            <IconShare />
+                                        </ActionIcon>
+                                    </Link>
+                                </Group>
                             </Group>
-                        </Group>
+                        </Stack>
                     </ThemePaper>
                 </Box>
             );
@@ -137,6 +126,13 @@ export default function IndexPage() {
                             <List.Item>Am I old?</List.Item>
                         </List>
                         <Text>Well, this website answers those questions!</Text>
+                    </Stack>
+                </ThemePaper>
+                <ThemePaper>
+                    <Stack>
+                        <VersionTitle id={data.versions[data.oldest.all].id} badge="Oldest" released={data.versions[data.oldest.all].date.released} />
+                        <Text>This is the oldest public version of Minecraft.</Text>
+                        <Text>It was released {data.versions[data.oldest.all].date.age} ago!</Text>
                     </Stack>
                 </ThemePaper>
                 <Group sx={{

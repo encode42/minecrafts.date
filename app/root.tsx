@@ -1,15 +1,15 @@
+import { MetaDescriptor } from "@remix-run/node";
 import { PropsWithChildren, useState } from "react";
 import { Links, LiveReload, Meta, Outlet, Scripts, useCatch, useFetcher, useLoaderData } from "@remix-run/react";
-import { MetaDescriptor } from "@remix-run/node";
 import { ErrorPage, getResult, RouteRequest } from "@encode42/remix-extras";
-import { theme } from "~/util/theme.server";
 import { ColorScheme, ColorSchemeProvider, Global, MantineProvider } from "@mantine/core";
 import { NotificationsProvider } from "@mantine/notifications";
 import { ModalsProvider } from "@mantine/modals";
 import { StylesPlaceholder } from "@mantine/remix";
+import { theme } from "~/util/theme.server";
 import { details } from "~/data/details";
-import montserrat from "a/font/montserrat.ttf";
 import { config } from "~/data/config";
+import montserrat from "a/font/montserrat.ttf";
 
 interface BasicDocumentProps extends PropsWithChildren {
     "colorScheme"?: ColorScheme
@@ -135,18 +135,6 @@ function Document({ children }: DocumentProps) {
 
 export function CatchBoundary() {
     const caught = useCatch();
-
-    let message;
-    switch (caught.status) {
-        case 401:
-            message = <p>You do not have access to this page.</p>;
-            break;
-        case 404:
-            message = <p>This page does not exist.</p>;
-            break;
-        default:
-            throw new Error(caught.data || caught.statusText);
-    }
 
     return (
         <BasicDocument>

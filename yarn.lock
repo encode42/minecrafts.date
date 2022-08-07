@@ -1098,9 +1098,9 @@
     react-player "^2.10.0"
 
 "@encode42/remix-extras@^4.1.1":
-  version "4.1.1"
-  resolved "https://registry.yarnpkg.com/@encode42/remix-extras/-/remix-extras-4.1.1.tgz#64037ef1ec84bcb5c110af5aa998e9fc7fe50f57"
-  integrity sha512-WN1IKq5+nLzCBMWYd+i0F4cm/x1CMfB8YIpCHTiB1Im2GBt/KAoaO1o6FO+lmbdBTHi2sNcjYQTKbXQ69teIIA==
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/@encode42/remix-extras/-/remix-extras-4.2.0.tgz#1003f24dc722b946ff36fbe0607b669c4708e733"
+  integrity sha512-n3uvb/MUWDr0wKaY1dybaCA0MSHLRYNv9lBw4l6xwmZxw6rivJlzSUXrI8zDQlqcmaCMeFK8CR46CPN7YxY4yg==
   dependencies:
     "@encode42/mantine-extras" "^4.1.1"
     "@remix-run/node" "^1.6.7"
