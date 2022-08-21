@@ -17,7 +17,11 @@ if (process.env.NODE_ENV === "production") {
     index = global.__index;
 }
 
-export function updateIndex(versions: Versions) {
+export function updateIndex(versions?: Versions) {
+    if (!versions) {
+        return;
+    }
+
     setIndex(Fuse.createIndex(["id"], versions.versions));
 }
 

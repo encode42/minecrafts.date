@@ -1,11 +1,13 @@
 import { ColorScheme, MantineColor } from "@mantine/core";
 
-interface Config {
-    "accentColor": MantineColor,
-    "colorScheme": ColorScheme
-}
-
-export const config: Config = {
-    "accentColor": "green",
-    "colorScheme": "dark"
+export const config = {
+    "accentColor": "green" as MantineColor,
+    "colorScheme": "dark" as ColorScheme,
+    "changelog": {
+        "base": "https://minecraft.fandom.com/wiki/Java_Edition_",
+        "beta": "Beta_",
+        "alpha": "Alpha_",
+        "infdev": "Infdev_",
+        "classic": "Classic_"
+    }
 };

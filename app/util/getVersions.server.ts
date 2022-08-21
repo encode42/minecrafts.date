@@ -1,6 +1,6 @@
-import { fetch } from "@remix-run/node";
 import humanizeDuration from "humanize-duration";
 import { index, updateIndex } from "~/util/index.server";
+import { config } from "~/data/config";
 
 export interface Version {
     "id": string,
@@ -8,7 +8,8 @@ export interface Version {
     "date": {
         "released": string,
         "age": string
-    }
+    },
+    "changelog"?: string
 }
 
 export interface VersionKey<T> {
@@ -26,23 +27,66 @@ export interface Versions {
     "types": string[]
 }
 
-export async function getVersions(): Promise<Versions> {
+let versions: Versions | undefined;
+
+declare global {
+    var __versions: Versions | undefined;
+}
+
+if (process.env.NODE_ENV === "production") {
+    processVersions();
+} else {
+    if (!global.__versions) {
+        processVersions();
+    }
+
+    versions = global.__versions;
+}
+
+async function processVersions() {
     const response = await fetch("https://piston-meta.mojang.com/mc/game/version_manifest_v2.json");
-    const meta = await response.json();
+    const json = await response.json();
+
+    if (versions && response.headers.get("x-cache") === "HIT") {
+        return;
+    }
 
     const now = new Date();
 
-    const versions: Version[] = [];
+    const processedVersions: Version[] = [];
     const types: string[] = [];
 
-    for (const version of meta.versions) {
+    for (const version of json.versions) {
         if (!types.includes(version.type)) {
             types.push(version.type);
         }
 
         const release = new Date(version.releaseTime);
 
-        versions.push({
+        // Create the changelog link compatible with the Minecraft Wiki
+        // A bit of a mess, but it works!
+        let changelog;
+        switch (version.type) {
+            case "old_beta":
+                changelog = `${config.changelog.base}${version.id.replace("b", config.changelog.beta)}`;
+                break;
+            case "old_alpha":
+                if (version.id.startsWith("a")) {
+                    changelog = `${config.changelog.base}${version.id.replace("a", config.changelog.alpha)}`;
+                } else if (version.id.startsWith("inf")) {
+                    changelog = `${config.changelog.base}${version.id.replace("inf-", config.changelog.infdev)}`;
+                } else if (version.id.startsWith("c")) {
+                    changelog = `${config.changelog.base}${version.id.replace("c", config.changelog.classic)}`;
+                } else if (version.id.startsWith("rd")) {
+                    changelog = `${config.changelog.base}pre-Classic_${version.id}`;
+                }
+
+                break;
+            default:
+                changelog = `${config.changelog.base}${version.id}`;
+        }
+
+        processedVersions.push({
             "id": version.id,
             "type": version.type,
             "date": {
@@ -53,7 +97,8 @@ export async function getVersions(): Promise<Versions> {
                     "day": "numeric"
                 }),
                 "age": humanizeDuration(now.getTime() - release.getTime(), { "units": ["y", "mo", "d"], "round": true })
-            }
+            },
+            changelog
         });
     }
 
@@ -62,13 +107,13 @@ export async function getVersions(): Promise<Versions> {
     };
 
     const oldest: NewestOldestIndex = {
-        "all": versions.length - 1
+        "all": processedVersions.length - 1
     };
 
     for (const type of types) {
         const typeVersions: number[] = [];
 
-        for (const [i, version] of versions.entries()) {
+        for (const [i, version] of processedVersions.entries()) {
             if (version.type !== type) {
                 continue;
             }
@@ -80,16 +125,29 @@ export async function getVersions(): Promise<Versions> {
         oldest[type] = typeVersions[typeVersions.length - 1];
     }
 
-    const result = {
-        versions,
+    setVersions({
+        versions: processedVersions,
         newest,
         oldest,
         types
-    };
+    });
 
     if (!index || response.headers.get("x-cache") !== "HIT") {
-        updateIndex(result);
+        updateIndex(versions);
+    }
+}
+
+export async function getVersions(): Promise<Versions> {
+    await processVersions();
+
+    if (!versions) {
+        throw new Error("'versions' is undefined");
     }
 
-    return result;
+    return versions;
+}
+
+function setVersions(vrs: Versions) {
+    versions = vrs;
+    global.__versions = vrs;
 }

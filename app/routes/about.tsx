@@ -7,6 +7,7 @@ import { Anchor } from "@encode42/remix-extras";
 import { HomeLink } from "~/component/HomeLink";
 import { prefixTitle } from "~/util/prefixTitle";
 import { MetaDescriptor } from "@remix-run/node";
+import { config } from "~/data/config";
 
 interface AboutEntry extends PropsWithChildren {
     "title": string
@@ -48,11 +49,11 @@ export default function AboutPage() {
                 </AboutEntry>
                 <AboutEntry title="I've spotted a mistake!">
                     <Text>Luckily, this website is open-source! If you have experience with the technologies we use, you're encouraged to open a pull request.</Text>
-                    <Text>If you can't fix the issue yourself, you can report the issue on <Anchor to={details.links.github} inline>GitHub</Anchor> or our <Anchor to={details.links.support} inline>support Discord</Anchor>.</Text>
+                    <Text>If you can't fix the issue yourself, you can report the issue on <Anchor color={config.accentColor} to={details.links.github} inline>GitHub</Anchor> or our <Anchor to={details.links.support} inline>support Discord</Anchor>.</Text>
                 </AboutEntry>
                 <AboutEntry title="What does the home page's header mean?">
-                    <Text>It's a reference to <Anchor to="https://youtu.be/5IsSpAOD6K8">Talking Heads - Once in a Lifetime</Anchor>!</Text>
-                    <Text>Specifically, it's a parody of the lyrics found at <Anchor to="https://youtu.be/5IsSpAOD6K8?t=70">1:10</Anchor>.</Text>
+                    <Text>It's a reference to <Anchor color={config.accentColor} to="https://youtu.be/5IsSpAOD6K8">Talking Heads - Once in a Lifetime</Anchor>!</Text>
+                    <Text>Specifically, it's a parody of the lyrics found at <Anchor color={config.accentColor} to="https://youtu.be/5IsSpAOD6K8?t=70">1:10</Anchor>.</Text>
                 </AboutEntry>
                 <HomeLink />
             </Stack>

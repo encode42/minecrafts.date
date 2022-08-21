@@ -1,7 +1,7 @@
 import { ReactNode, useMemo, useState } from "react";
 import { useLoaderData, useLocation, useNavigate } from "@remix-run/react";
-import { Link } from "@encode42/remix-extras";
-import { ActionIcon, Group, MultiSelect, Stack, Text, TextInput, Title, CloseButton, Collapse, Button, Badge, Space, Image, Container } from "@mantine/core";
+import { Anchor, Link } from "@encode42/remix-extras";
+import { ActionIcon, Group, MultiSelect, Stack, Text, TextInput, Title, CloseButton, Collapse, Button, Badge, Space, Image, Container, useMantineColorScheme } from "@mantine/core";
 import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
 import { showNotification } from "@mantine/notifications";
 import { ThemePaper } from "@encode42/mantine-extras";
@@ -15,12 +15,13 @@ import badge from "a/logo/badge.png";
 import LazyLoad, { forceCheck } from "react-lazyload";
 import Fuse from "fuse.js";
 import { index } from "~/util/index.server";
+import { config } from "~/data/config";
 
 /*
 TODO:
 - Improve mobile view
+- Fix Mantine primary color issue
 - More stats
-- Ability to favorite a version
 - Add "and" to final unit
 - More types
 - More filters
@@ -54,17 +55,21 @@ function VersionTitle({ id, badges = [], released }: VersionTitleProps) {
             "alignItems": "flex-start"
         }}>
             <Group>
-                <Title>{id}</Title>
+                <Anchor color={config.accentColor} to={`/${id}`}>
+                    <Title>{id}</Title>
+                </Anchor>
                 {badges?.map(badge => (
                     <Badge key={badge}>{badge}</Badge>
                 ))}
             </Group>
-            <Text color="dimmed">{released}</Text>
+            <Text>{released}</Text>
         </Group>
     );
 }
 
 function VersionEntry({ version, isNewest, isOldest, badges = [], onCopy }: VersionEntryProps) {
+    const { colorScheme } = useMantineColorScheme();
+
     if (isNewest) {
         badges.push(`Newest ${version.type}`);
     }
@@ -81,7 +86,7 @@ function VersionEntry({ version, isNewest, isOldest, badges = [], onCopy }: Vers
                     <Group position="apart" sx={{
                         "alignItems": "flex-end"
                     }}>
-                        <Text>Released {version.date.age} ago</Text>
+                        <Text color={colorScheme === "dark" ? "white" : "black"}>Released <Text weight="bold" span>{version.date.age}</Text> ago</Text>
                         <Group>
                             <ActionIcon color="primary" size="lg" variant="outline" onClick={async () => {
                                 await onCopy?.();

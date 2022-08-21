@@ -10,6 +10,7 @@ import { getVersions, Version } from "~/util/getVersions.server";
 import { prefixTitle } from "~/util/prefixTitle";
 import { AnchorIcon } from "~/component/AnchorIcon";
 import { IconNews } from "@tabler/icons";
+import { config } from "~/data/config";
 
 interface MetaOptions {
     "data": LoaderResult
@@ -17,7 +18,6 @@ interface MetaOptions {
 
 interface LoaderResult {
     "version": Version | undefined,
-    "changelog": string | undefined,
     "isBot": boolean
 }
 
@@ -47,37 +47,11 @@ export async function loader({ request, params }: RouteOptions): Promise<LoaderR
         }
     }
 
-    // Create the changelog link compatible with the Minecraft Wiki
-    // A bit of a mess, but it works!
-    let changelog;
-    if (existingVersion) {
-        switch (existingVersion.type) {
-            case "old_beta":
-                changelog = `${baseChangelogURL}${existingVersion.id.replace("b", "Beta_")}`;
-                break;
-            case "old_alpha":
-                if (existingVersion.id.startsWith("a")) {
-                    changelog = `${baseChangelogURL}${existingVersion.id.replace("a", "Alpha_")}`;
-                } else if (existingVersion.id.startsWith("inf")) {
-                    changelog = `${baseChangelogURL}${existingVersion.id.replace("inf-", "Infdev_")}`;
-                } else if (existingVersion.id.startsWith("c")) {
-                    changelog = `${baseChangelogURL}${existingVersion.id.replace("c", "Classic_")}`;
-                } else if (existingVersion.id.startsWith("rd")) {
-                    changelog = `${baseChangelogURL}pre-Classic_${existingVersion.id}`;
-                }
-
-                break;
-            default:
-                changelog = `${baseChangelogURL}${existingVersion.id}`;
-        }
-    }
-
     // Check for bots (for embeds)
     const userAgent = request.headers.get("user-agent");
 
     return {
         "version": existingVersion,
-        changelog,
         "isBot": userAgent ? userAgent.includes("Discordbot") : false
     };
 }
@@ -96,7 +70,7 @@ export default function VersionPage() {
                                 <Text size="lg">This version was released on <Text weight="bold" component="span">{data.version.date.released}</Text>.</Text>
                                 <Text size="lg">That was <Text weight="bold" component="span">{data.version.date.age}</Text> ago!</Text>
                             </Stack>
-                            <AnchorIcon icon={<IconNews />} to={data.changelog} target="_blank">Changelog</AnchorIcon>
+                            {data.version.changelog && <AnchorIcon color={config.accentColor} icon={<IconNews />} to={data.version.changelog} target="_blank">Changelog</AnchorIcon>}
                             <HomeLink />
                         </>
                     ) : (
