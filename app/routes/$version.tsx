@@ -6,7 +6,7 @@ import { StandardLayout } from "~/layout/StandardLayout";
 import { HomeLink } from "~/component/HomeLink";
 import { ImportantPaper } from "~/component/ImportantPaper";
 import { ImportantTitle } from "~/component/ImportantTitle";
-import { getVersions, Version } from "~/util/storage/getVersions.server";
+import { getVersion, Version } from "~/util/storage/getVersions.server";
 import { prefixTitle } from "~/util/prefixTitle";
 import { AnchorIcon } from "~/component/AnchorIcon";
 import { IconNews } from "@tabler/icons";
@@ -34,22 +34,14 @@ export function meta({ data }: MetaOptions): MetaDescriptor {
 }
 
 export async function loader({ request, params }: RouteOptions): Promise<LoaderResult> {
-    const versions = await getVersions();
-
     // Find the requested version
-    let existingVersion: Version | undefined;
-    for (const version of versions.versions) {
-        if (version.id === params.version) {
-            existingVersion = version;
-            break;
-        }
-    }
+    const version = await getVersion(params.version);
 
     // Check for bots (for embeds)
     const userAgent = request.headers.get("user-agent");
 
     return {
-        "version": existingVersion,
+        "version": version,
         "isBot": userAgent ? userAgent.includes("Discordbot") : false
     };
 }

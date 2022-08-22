@@ -4,7 +4,6 @@ import { userStorage } from "~/util/user/userStorage.server";
 import { json } from "@remix-run/node";
 
 export async function action({ request }: RouteRequest) {
-    // Get the query
     const data = await validateForm(request, SetQuery, {
         "throw": true,
         "fullReturn": false

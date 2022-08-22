@@ -157,7 +157,7 @@ async function processVersions() {
     }
 }
 
-export async function getVersions(): Promise<Versions> {
+export async function getVersions(version?: string): Promise<Versions> {
     await processVersions();
 
     if (!versions) {
@@ -165,6 +165,24 @@ export async function getVersions(): Promise<Versions> {
     }
 
     return versions;
+}
+
+export async function getVersion(version?: string): Promise<Version | undefined> {
+    await getVersions();
+
+    if (!version) {
+        return;
+    }
+
+    let foundVersion;
+    for (const existingVersion of versions.versions) {
+        if (existingVersion.id === version) {
+            foundVersion = existingVersion;
+            break;
+        }
+    }
+
+    return foundVersion;
 }
 
 function setVersions(vrs: Versions) {
