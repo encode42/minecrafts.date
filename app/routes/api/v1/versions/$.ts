@@ -21,9 +21,11 @@ export async function action({ request }: RouteOptions) {
         });
     }
 
+    const versions = await getVersions();
+
     if (validation.data.types) {
-        const hasTypes = await withTypes(validation.data.types);
-        const hasExtras = await withExtras(hasTypes.versions);
+        const hasTypes = withTypes(versions, validation.data.types);
+        const hasExtras = withExtras(versions, hasTypes.versions);
 
         return {
             "versions": hasExtras,
@@ -50,13 +52,13 @@ export async function loader({ params }: RouteParams) {
 
     if (!validation.data) {
         return json({
-            "versions": await withExtras(versions.versions)
+            "versions": withExtras(versions, versions.versions)
         });
     }
 
     const version = await getVersion(validation.data);
 
-    return version ? json(await withExtras(version)) : json({
+    return version ? json(withExtras(versions, version)) : json({
         "error": "The specified version does not exist."
     }, {
         "status": 400

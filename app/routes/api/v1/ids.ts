@@ -32,8 +32,10 @@ export async function action({ request }: RouteRequest) {
         });
     }
 
+    const versions = await getVersions();
+
     if (validation.data.types) {
-        const types = await withTypes(validation.data.types);
+        const types = withTypes(versions, validation.data.types);
 
         const result: ActionResult = {
             "ids": mapIDs(types.versions),

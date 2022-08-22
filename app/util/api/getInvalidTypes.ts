@@ -1,8 +1,6 @@
-import { getVersions } from "~/util/storage/getVersions.server";
+import { Versions } from "~/util/storage/getVersions.server";
 
-export async function getInvalidTypes(types: string[]) {
-    const versions = await getVersions();
-
+export function getInvalidTypes(versions: Versions, types: string[]) {
     const invalidTypes: string[] = [];
     for (const type of types) {
         if (!versions.types.includes(type)) {

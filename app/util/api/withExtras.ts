@@ -1,4 +1,4 @@
-import { getVersions, Version, Versions } from "~/util/storage/getVersions.server";
+import { Version, Versions } from "~/util/storage/getVersions.server";
 
 function mergeExtras(versions: Versions, version: Version) {
     return {
@@ -7,9 +7,7 @@ function mergeExtras(versions: Versions, version: Version) {
     };
 }
 
-export async function withExtras(version: Version | Version[]) {
-    const versions = await getVersions();
-
+export function withExtras(versions: Versions, version: Version | Version[]) {
     if (Array.isArray(version)) {
         return version.map(v => mergeExtras(versions, v));
     }
