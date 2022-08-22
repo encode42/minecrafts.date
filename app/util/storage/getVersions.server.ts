@@ -1,5 +1,5 @@
 import humanizeDuration from "humanize-duration";
-import { index, updateIndex } from "~/util/index.server";
+import { index, updateIndex } from "~/util/storage/index.server";
 import { config } from "~/data/config";
 
 export interface Version {
@@ -21,6 +21,7 @@ export interface NewestOldestIndex extends VersionKey<number> {
 }
 
 export interface Versions {
+    "lastUpdate": Date,
     "versions": Version[],
     "newest": NewestOldestIndex,
     "oldest": NewestOldestIndex,
@@ -47,11 +48,20 @@ async function processVersions() {
     const response = await fetch("https://piston-meta.mojang.com/mc/game/version_manifest_v2.json");
     const json = await response.json();
 
-    if (versions && response.headers.get("x-cache") === "HIT") {
-        return;
+    const now = new Date();
+
+    let timeDiff = 0;
+    if (versions) {
+        timeDiff = now.getTime() - versions.lastUpdate.getTime();
     }
 
-    const now = new Date();
+    // Return early if:
+    // - Versions object is defined
+    // - Cache was hit (no new content)
+    // - Update interval is not due
+    if (versions && response.headers.get("x-cache") === "HIT" && timeDiff < config.updateInterval) {
+        return;
+    }
 
     const processedVersions: Version[] = [];
     const types: string[] = [];
@@ -86,6 +96,15 @@ async function processVersions() {
                 changelog = `${config.changelog.base}${version.id}`;
         }
 
+        const age = humanizeDuration(now.getTime() - release.getTime(), {
+            "units": ["y", "mo", "d"],
+            "round": true
+        }).split(", ");
+
+        if (age.length > 1) {
+            age[age.length - 1] = `and ${age[age.length - 1]}`;
+        }
+
         processedVersions.push({
             "id": version.id,
             "type": version.type,
@@ -96,7 +115,7 @@ async function processVersions() {
                     "month": "long",
                     "day": "numeric"
                 }),
-                "age": humanizeDuration(now.getTime() - release.getTime(), { "units": ["y", "mo", "d"], "round": true })
+                "age": age.join(age.length > 2 ? ", " : " ")
             },
             changelog
         });
@@ -126,7 +145,8 @@ async function processVersions() {
     }
 
     setVersions({
-        versions: processedVersions,
+        "lastUpdate": now,
+        "versions": processedVersions,
         newest,
         oldest,
         types

@@ -1,5 +1,5 @@
 import Fuse from "fuse.js";
-import { Versions } from "~/util/getVersions.server";
+import { Versions } from "~/util/storage/getVersions.server";
 
 let index: Fuse.FuseIndex<unknown> | undefined;
 

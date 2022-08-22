@@ -1,34 +1,36 @@
-import { ReactNode, useMemo, useState } from "react";
-import { useLoaderData, useLocation, useNavigate } from "@remix-run/react";
-import { Anchor, Link } from "@encode42/remix-extras";
+import { ReactNode, useEffect, useMemo, useState } from "react";
+import { useFetcher, useLoaderData, useLocation, useNavigate } from "@remix-run/react";
+import { Anchor, Link, RouteRequest } from "@encode42/remix-extras";
 import { ActionIcon, Group, MultiSelect, Stack, Text, TextInput, Title, CloseButton, Collapse, Button, Badge, Space, Image, Container, useMantineColorScheme } from "@mantine/core";
-import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
+import { useDebouncedState, useDisclosure } from "@mantine/hooks";
 import { showNotification } from "@mantine/notifications";
 import { ThemePaper } from "@encode42/mantine-extras";
-import { IconArrowRight, IconBox, IconFilter, IconFilterOff, IconLink, IconQuestionMark, IconSearch, IconX } from "@tabler/icons";
+import { IconBox, IconFilter, IconLink, IconQuestionMark, IconSearch, IconX } from "@tabler/icons";
 import { StandardLayout } from "~/layout/StandardLayout";
 import { details } from "~/data/details";
-import { getVersions, Version, Versions } from "~/util/getVersions.server";
+import { getVersions, Version, Versions } from "~/util/storage/getVersions.server";
 import { ImportantPaper } from "~/component/ImportantPaper";
 import { ImportantTitle } from "~/component/ImportantTitle";
 import badge from "a/logo/badge.png";
 import LazyLoad, { forceCheck } from "react-lazyload";
 import Fuse from "fuse.js";
-import { index } from "~/util/index.server";
+import { index } from "~/util/storage/index.server";
 import { config } from "~/data/config";
+import { getUser, getUserResult } from "~/util/user/getUser.server";
+import { z } from "zod";
+import { SetQuery } from "~/validation";
 
 /*
 TODO:
 - Improve mobile view
 - Fix Mantine primary color issue
+- Expose API
 - More stats
-- Add "and" to final unit
-- More types
+- More types (infdev, etc.)
 - More filters
   * Year range
   * X ago (inc & exc)
   * Apply filters to search
-- Empty search doesn't show anything
  */
 
 interface VersionTitleProps {
@@ -45,7 +47,9 @@ interface VersionEntryProps {
     "onCopy"?: () => Promise<void>
 }
 
-interface LoaderResult extends Versions {
+interface LoaderResult {
+    "versions": Versions,
+    "user": getUserResult,
     "index": Fuse.FuseIndex<unknown> | undefined
 }
 
@@ -106,9 +110,10 @@ function VersionEntry({ version, isNewest, isOldest, badges = [], onCopy }: Vers
     );
 }
 
-export async function loader(): Promise<LoaderResult> {
+export async function loader({ request }: RouteRequest): Promise<LoaderResult> {
     return {
-        ...await getVersions(),
+        "versions": await getVersions(),
+        "user": await getUser(request),
         index
     };
 }
@@ -119,22 +124,22 @@ export default function IndexPage() {
 
     const data = useLoaderData<LoaderResult>();
     const navigate = useNavigate();
+    const fetcher = useFetcher();
 
-    const [fuse] = useState(new Fuse(data.versions, {
+    const [fuse] = useState(new Fuse(data.versions.versions, {
         "threshold": 0.1,
         "keys": ["id"]
     }, Fuse.parseIndex(data.index)));
 
-    const [search, setSearch] = useState("");
-    const [types, setTypes] = useState<(string | null)[]>(["release", searchParams.get("type")]);
+    const [search, setSearch] = useDebouncedState(data.user.search, 350);
+    const [types, setTypes] = useState<string[]>(data.user.types);
+
     const [showFilters, openFiltersHandler] = useDisclosure(false);
     const [listedVersions, setListedVersions] = useState<ReactNode[]>([]);
 
-    const [debouncedSearch] = useDebouncedValue(search, 350);
-
     function createEntry(version: Version, key?: string) {
-        const isNewest = version.id === data.versions[data.newest[version.type]].id;
-        const isOldest = version.id === data.versions[data.oldest[version.type]].id;
+        const isNewest = version.id === data.versions.versions[data.versions.newest[version.type]].id;
+        const isOldest = version.id === data.versions.versions[data.versions.oldest[version.type]].id;
 
         return (
             <VersionEntry key={key} version={version} isNewest={isNewest} isOldest={isOldest} badges={search === version.id ? ["Exact Match"] : undefined} onCopy={async () => {
@@ -161,19 +166,10 @@ export default function IndexPage() {
         );
     }
 
-    useMemo(() => {
-        const results = fuse.search(debouncedSearch);
-
+    function runFilter(versions: LoaderResult["versions"]["versions"] = data.versions.versions) {
         const newList: typeof listedVersions = [];
-        for (const result of results) {
-            newList.push(createEntry(result.item, result.item.id));
-        }
-        setListedVersions(newList);
-    }, [debouncedSearch]);
 
-    useMemo(() => {
-        const newList: typeof listedVersions = [];
-        for (const version of data.versions) {
+        for (const version of versions) {
             // Exclude types that aren't selected
             if (types.length > 0 && !types.includes(version.type)) {
                 continue;
@@ -181,8 +177,35 @@ export default function IndexPage() {
 
             newList.push(createEntry(version, version.id));
         }
+
         setListedVersions(newList);
-    }, [types]);
+    }
+
+    function runSearch() {
+        if (!search) {
+            runFilter();
+
+            return;
+        }
+
+        runFilter(fuse.search(search).map(result => result.item));
+    }
+
+    useMemo(() => {
+        runSearch();
+    }, [search, types]);
+
+    useEffect(() => {
+        fetcher.submit({
+            "data": JSON.stringify({
+                search,
+                types
+            } as z.infer<typeof SetQuery>)
+        }, {
+            "action": "/api/v1/user/setQuery",
+            "method": "post"
+        });
+    }, [search, types]);
 
     useMemo(() => {
         forceCheck();
@@ -211,11 +234,11 @@ export default function IndexPage() {
                 <Group sx={{
                     "alignItems": "flex-end"
                 }}>
-                    <TextInput label="Search" icon={<IconSearch />} rightSectionWidth={30} rightSection={
+                    <TextInput label="Search" icon={<IconSearch />} defaultValue={search} rightSectionWidth={30} rightSection={
                         <CloseButton variant="transparent" size="sm" onClick={() => {
                             setSearch("");
                         }} />
-                    } value={search} onChange={event => {
+                    } onChange={event => {
                         setSearch(event.currentTarget.value);
                     }} sx={{
                         "flexGrow": 1
@@ -227,7 +250,7 @@ export default function IndexPage() {
                     </Button>
                 </Group>
                 <Collapse in={showFilters}>
-                    <MultiSelect label="Release Types" icon={<IconBox />} clearable data={data.types} value={types} onChange={value => {
+                    <MultiSelect label="Release Types" icon={<IconBox />} clearable data={data.versions.types} value={types} onChange={value => {
                         setTypes(value);
                     }} />
                 </Collapse>

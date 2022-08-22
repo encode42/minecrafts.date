@@ -6,7 +6,7 @@ import { ColorScheme, ColorSchemeProvider, Global, MantineProvider } from "@mant
 import { NotificationsProvider } from "@mantine/notifications";
 import { ModalsProvider } from "@mantine/modals";
 import { StylesPlaceholder } from "@mantine/remix";
-import { theme } from "~/util/theme.server";
+import { theme } from "~/util/user/theme.server";
 import { details } from "~/data/details";
 import { config } from "~/data/config";
 import montserrat from "a/font/montserrat.ttf";

@@ -6,7 +6,7 @@ import { StandardLayout } from "~/layout/StandardLayout";
 import { HomeLink } from "~/component/HomeLink";
 import { ImportantPaper } from "~/component/ImportantPaper";
 import { ImportantTitle } from "~/component/ImportantTitle";
-import { getVersions, Version } from "~/util/getVersions.server";
+import { getVersions, Version } from "~/util/storage/getVersions.server";
 import { prefixTitle } from "~/util/prefixTitle";
 import { AnchorIcon } from "~/component/AnchorIcon";
 import { IconNews } from "@tabler/icons";
@@ -20,8 +20,6 @@ interface LoaderResult {
     "version": Version | undefined,
     "isBot": boolean
 }
-
-const baseChangelogURL = `https://minecraft.fandom.com/wiki/Java_Edition_`;
 
 export function meta({ data }: MetaOptions): MetaDescriptor {
     if (!data.version) {
