@@ -3,6 +3,7 @@ import { RouteOptions, RouteParams } from "@encode42/remix-extras";
 import { getVersion, getVersions } from "~/util/storage/getVersions.server";
 import { Version, Versions } from "~/validation";
 import { withTypes } from "~/util/api/withTypes";
+import { withExtras } from "~/util/api/withExtras";
 
 export async function action({ request }: RouteOptions) {
     if (request.method !== "PATCH") {
@@ -21,7 +22,13 @@ export async function action({ request }: RouteOptions) {
     }
 
     if (validation.data.types) {
-        return await withTypes(validation.data.types);
+        const hasTypes = await withTypes(validation.data.types);
+        const hasExtras = await withExtras(hasTypes.versions);
+
+        return {
+            "versions": hasExtras,
+            "invalid": hasTypes.invalid
+        };
     }
 
     return json({
@@ -39,16 +46,17 @@ export async function loader({ params }: RouteParams) {
         });
     }
 
+    const versions = await getVersions();
+
     if (!validation.data) {
-        const versions = await getVersions();
         return json({
-            "versions": versions.versions
+            "versions": await withExtras(versions.versions)
         });
     }
 
     const version = await getVersion(validation.data);
 
-    return version ? json(version) : json({
+    return version ? json(await withExtras(version)) : json({
         "error": "The specified version does not exist."
     }, {
         "status": 400

@@ -12,6 +12,15 @@ export interface Version {
     "changelog"?: string
 }
 
+export interface VersionExtras {
+    [key: string]: {
+        "timestamp": {
+            "epoch": number,
+            "discord": number
+        }
+    }
+}
+
 export interface VersionKey<T> {
     [key: string]: T
 }
@@ -23,6 +32,7 @@ export interface NewestOldestIndex extends VersionKey<number> {
 export interface Versions {
     "lastUpdate": Date,
     "versions": Version[],
+    "extras": VersionExtras,
     "newest": NewestOldestIndex,
     "oldest": NewestOldestIndex,
     "types": string[]
@@ -64,6 +74,7 @@ async function processVersions() {
     }
 
     const processedVersions: Version[] = [];
+    const processedVersionExtras: VersionExtras = {};
     const types: string[] = [];
 
     for (const version of json.versions) {
@@ -119,6 +130,13 @@ async function processVersions() {
             },
             changelog
         });
+
+        processedVersionExtras[version.id] = {
+            "timestamp": {
+                "epoch": release.getTime(),
+                "discord": Math.round(release.getTime() / 1000)
+            }
+        };
     }
 
     const newest: NewestOldestIndex = {
@@ -147,6 +165,7 @@ async function processVersions() {
     setVersions({
         "lastUpdate": now,
         "versions": processedVersions,
+        "extras": processedVersionExtras,
         newest,
         oldest,
         types
@@ -157,7 +176,7 @@ async function processVersions() {
     }
 }
 
-export async function getVersions(version?: string): Promise<Versions> {
+export async function getVersions(): Promise<Versions> {
     await processVersions();
 
     if (!versions) {
