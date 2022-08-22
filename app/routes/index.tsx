@@ -133,6 +133,7 @@ export default function IndexPage() {
 
     const [search, setSearch] = useDebouncedState(data.user.search, 350);
     const [types, setTypes] = useState<string[]>(data.user.types);
+    const [firstLoad, firstLoadHandler] = useDisclosure(true);
 
     const [showFilters, openFiltersHandler] = useDisclosure(false);
     const [listedVersions, setListedVersions] = useState<ReactNode[]>([]);
@@ -196,6 +197,12 @@ export default function IndexPage() {
     }, [search, types]);
 
     useEffect(() => {
+        if (firstLoad) {
+            firstLoadHandler.close();
+
+            return;
+        }
+
         fetcher.submit({
             "data": JSON.stringify({
                 search,
