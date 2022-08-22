@@ -14,6 +14,6 @@ export async function getUser(request: Request): Promise<getUserResult> {
 
     return {
         "search": session.get("search") ?? "",
-        "types": session.get("types") ?? [url.searchParams.get("type")] ?? [versions.types[0]]
+        "types": url.searchParams.get("type") ?? session.get("types") ?? [versions.types[0]]
     };
 }
