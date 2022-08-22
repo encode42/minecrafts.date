@@ -2,6 +2,8 @@ import { getVersions, Version } from "~/util/storage/getVersions.server";
 import { json } from "@remix-run/node";
 import { VersionsList } from "~/validation";
 import { RouteRequest } from "@encode42/remix-extras";
+import { getInvalidTypes } from "~/util/api/getInvalidTypes";
+import { withTypes } from "~/util/api/withTypes";
 
 function mapIDs(versions: Version[]) {
     return versions.map(version => version.id);
@@ -31,24 +33,15 @@ export async function action({ request }: RouteRequest) {
         });
     }
 
-    const versions = await getVersions();
-
     if (validation.data.types) {
-        const invalidTypes: string[] = [];
-        for (const type of validation.data.types) {
-            if (!versions.types.includes(type)) {
-                invalidTypes.push(type);
-            }
-        }
-
-        const withTypes = versions.versions.filter(version => validation.data.types.includes(version.type));
+        const types = await withTypes(validation.data.types);
 
         const result: ActionResult = {
-            "versions": mapIDs(withTypes),
+            "versions": mapIDs(types.versions),
         };
 
-        if (invalidTypes.length > 0) {
-            result.invalid = invalidTypes;
+        if (types.invalid.length > 0) {
+            result.invalid = types.invalid;
         }
 
         return json(result);
