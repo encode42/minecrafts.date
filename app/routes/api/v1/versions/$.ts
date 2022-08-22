@@ -24,7 +24,9 @@ export async function action({ request }: RouteOptions) {
         return await withTypes(validation.data.types);
     }
 
-    return await getVersions();
+    return json({
+        "versions": await getVersions()
+    });
 }
 
 export async function loader({ params }: RouteParams) {
@@ -39,7 +41,9 @@ export async function loader({ params }: RouteParams) {
 
     if (!validation.data) {
         const versions = await getVersions();
-        return json(versions.versions);
+        return json({
+            "versions": versions.versions
+        });
     }
 
     const version = await getVersion(validation.data);
