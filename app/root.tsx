@@ -117,7 +117,8 @@ function BasicDocument({ colorScheme = config.colorScheme, children }: BasicDocu
                     }, {
                         "@font-face": {
                             "fontFamily": "Montserrat",
-                            "src": `url("${montserrat}") format("truetype")`
+                            "src": `url("${montserrat}") format("truetype")`,
+                            "fontDisplay": "swap"
                         }
                     }]} />
                     <NotificationsProvider>
@@ -140,14 +141,8 @@ function Document({ children }: DocumentProps) {
     const [colorScheme, setColorScheme] = useState<ColorScheme>(data.theme.colorScheme);
 
     function toggleColorScheme(value: ColorScheme) {
-        console.log("TETETET");
-
         const newColorScheme = value ?? (colorScheme === "dark" ? "light" : "dark");
         setColorScheme(newColorScheme);
-
-        console.log(JSON.stringify({
-            "colorScheme": newColorScheme
-        }));
 
         fetcher.submit({
             "data": JSON.stringify({

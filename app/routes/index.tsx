@@ -18,6 +18,7 @@ import { index } from "~/util/storage/index.server";
 import { getUser, getUserResult } from "~/util/user/getUser.server";
 import { z } from "zod";
 import { SetQuery } from "~/validation";
+import { AnchorButton } from "~/component/AnchorButton";
 
 /*
 TODO:
@@ -53,18 +54,24 @@ interface LoaderResult {
 }
 
 function VersionTitle({ id, badges = [], released }: VersionTitleProps) {
+    const anchor = (
+        <Anchor to={`/${id}`}>
+            <Title>{id}</Title>
+        </Anchor>
+    );
+
     return (
         <Group position="apart" sx={{
             "alignItems": "flex-start"
         }}>
-            <Group>
-                <Anchor to={`/${id}`}>
-                    <Title>{id}</Title>
-                </Anchor>
-                {badges?.map(badge => (
-                    <Badge key={badge}>{badge}</Badge>
-                ))}
-            </Group>
+            {badges?.length > 0 ? (
+                <Group>
+                    {anchor}
+                    {badges?.map(badge => (
+                        <Badge key={badge}>{badge}</Badge>
+                    ))}
+                </Group>
+            ) : anchor}
             <Text>{released}</Text>
         </Group>
     );
@@ -89,18 +96,16 @@ function VersionEntry({ version, isNewest, isOldest, badges = [], onCopy }: Vers
                     <Group position="apart" sx={{
                         "alignItems": "flex-end"
                     }}>
-                        <Text color={colorScheme === "dark" ? "white" : "black"}>Released <Text weight="bold" span>{version.date.age}</Text> ago</Text>
+                        <Text color={colorScheme === "dark" ? "white" : "black"}>Released {version.date.age} ago</Text>
                         <Group>
-                            <ActionIcon color="primary" size="lg" variant="outline" onClick={async () => {
+                            <ActionIcon title="Copy version link" color="primary" size="lg" variant="outline" onClick={async () => {
                                 await onCopy?.();
                             }}>
                                 <IconLink />
                             </ActionIcon>
-                            <Link to={`/${version.id}`}>
-                                <Button leftIcon={<IconQuestionMark />} color="primary" size="sm" variant="filled">
-                                    Info
-                                </Button>
-                            </Link>
+                            <AnchorButton title="View more information about this version" to={`/${version.id}`} leftIcon={<IconQuestionMark />}>
+                                Info
+                            </AnchorButton>
                         </Group>
                     </Group>
                 </Stack>
@@ -224,16 +229,12 @@ export default function IndexPage() {
                 <ImportantPaper>
                     <Stack>
                         <ImportantTitle.Wrapper custom>
-                            <Image src={badge} width={42} />
+                            <Image alt="Website's logo" src={badge} width={42} />
                             <ImportantTitle ml="md">{details.name}</ImportantTitle>
                         </ImportantTitle.Wrapper>
-                        <Container size="xl" sx={{
-                            "width": "100%"
-                        }}>
-                            <Text size="lg" weight="bold" align="left">"How old is Minecraft?"</Text>
-                            <Text size="lg" weight="bold" align="center">"Where is the age of that version?"</Text>
-                            <Text size="lg" weight="bold" align="right">"Am I old?"</Text>
-                        </Container>
+                        <Text size="lg" weight="bold" align="left">"How old is Minecraft?"</Text>
+                        <Text size="lg" weight="bold" align="center">"Where is the age of that version?"</Text>
+                        <Text size="lg" weight="bold" align="right">"Am I old?"</Text>
                         <Space h="md" />
                         <Text size="lg" align="center">...you may ask yourself. This website contains the answers to those questions!</Text>
                     </Stack>
@@ -242,7 +243,7 @@ export default function IndexPage() {
                     "alignItems": "flex-end"
                 }}>
                     <TextInput label="Search" icon={<IconSearch />} defaultValue={search} rightSectionWidth={30} rightSection={
-                        <CloseButton variant="transparent" size="sm" onClick={() => {
+                        <CloseButton title="Clear search" variant="transparent" size="sm" onClick={() => {
                             setSearch("");
                         }} />
                     } onChange={event => {
