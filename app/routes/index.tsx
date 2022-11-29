@@ -15,7 +15,6 @@ import badge from "a/logo/badge.png";
 import LazyLoad, { forceCheck } from "react-lazyload";
 import Fuse from "fuse.js";
 import { index } from "~/util/storage/index.server";
-import { config } from "~/data/config";
 import { getUser, getUserResult } from "~/util/user/getUser.server";
 import { z } from "zod";
 import { SetQuery } from "~/validation";
@@ -23,8 +22,8 @@ import { SetQuery } from "~/validation";
 /*
 TODO:
 - Improve mobile view
-- Fix Mantine primary color issue
-- Expose API
+- Change API to use queries instead of PATCH
+- Change API to exclude extras if specified
 - More stats
 - More types (infdev, etc.)
 - More filters
@@ -59,7 +58,7 @@ function VersionTitle({ id, badges = [], released }: VersionTitleProps) {
             "alignItems": "flex-start"
         }}>
             <Group>
-                <Anchor color={config.accentColor} to={`/${id}`}>
+                <Anchor to={`/${id}`}>
                     <Title>{id}</Title>
                 </Anchor>
                 {badges?.map(badge => (
@@ -157,6 +156,7 @@ export default function IndexPage() {
                 });
 
                 // Copy link to clipboard
+                // eslint-disable-next-line no-undef
                 await navigator.clipboard.writeText(window.location.href);
 
                 showNotification({

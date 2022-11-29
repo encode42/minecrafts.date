@@ -15,6 +15,6 @@ export async function getUser(request: Request): Promise<getUserResult> {
 
     return {
         "search": session.get("search") ?? "",
-        "types": (typeParams ? [typeParams] : undefined) ?? session.get("types") ?? [versions.types[0]]
+        "types": (typeParams ? [typeParams] : undefined) ?? session.get("types") ?? ["release"]
     };
 }

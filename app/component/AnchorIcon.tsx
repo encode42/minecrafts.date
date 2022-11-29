@@ -1,8 +1,7 @@
-import { cloneElement, ReactElement } from "react";
+import { cloneElement, PropsWithChildren, ReactElement } from "react";
 import { Anchor, AnchorProps } from "@encode42/remix-extras";
 import { Box, BoxProps, Center, useMantineTheme } from "@mantine/core";
 import deepmerge from "deepmerge";
-import { config } from "~/data/config";
 
 interface AnchorIconProps extends AnchorProps {
     "icon": ReactElement,
@@ -10,7 +9,7 @@ interface AnchorIconProps extends AnchorProps {
     "boxProps"?: BoxProps
 }
 
-export function AnchorIcon({ icon, iconSize = 18, boxProps = {}, color = config.accentColor, children, ...other }: AnchorIconProps) {
+export function AnchorIcon({ icon, iconSize = 18, boxProps = {}, children, ...other }: AnchorIconProps & PropsWithChildren) {
     const theme = useMantineTheme();
 
     boxProps = deepmerge({
@@ -18,7 +17,7 @@ export function AnchorIcon({ icon, iconSize = 18, boxProps = {}, color = config.
     }, boxProps);
 
     return (
-        <Anchor color={color} {...other}>
+        <Anchor {...other}>
             <Center inline>
                 {cloneElement(icon, {
                     "size": iconSize

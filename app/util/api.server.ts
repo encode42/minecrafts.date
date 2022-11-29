@@ -4,6 +4,7 @@ import { getEnv } from "~/util/getEnv.server";
 let api: API;
 
 declare global {
+    // eslint-disable-next-line no-var
     var __api: API | undefined;
 }
 

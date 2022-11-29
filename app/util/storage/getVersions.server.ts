@@ -41,6 +41,7 @@ export interface Versions {
 let versions: Versions | undefined;
 
 declare global {
+    // eslint-disable-next-line no-var
     var __versions: Versions | undefined;
 }
 
@@ -55,9 +56,7 @@ if (process.env.NODE_ENV === "production") {
 }
 
 async function processVersions() {
-    const response = await fetch("https://piston-meta.mojang.com/mc/game/version_manifest_v2.json");
-    const json = await response.json();
-
+    // Check if it's time to update
     const now = new Date();
 
     let timeDiff = 0;
@@ -65,11 +64,17 @@ async function processVersions() {
         timeDiff = now.getTime() - versions.lastUpdate.getTime();
     }
 
-    // Return early if:
-    // - Versions object is defined
-    // - Cache was hit (no new content)
-    // - Update interval is not due
-    if (versions && response.headers.get("x-cache") === "HIT" && timeDiff < config.updateInterval) {
+    // It isn't!
+    if (timeDiff < config.updateInterval) {
+        return;
+    }
+
+    // It is!
+    const response = await fetch("https://piston-meta.mojang.com/mc/game/version_manifest_v2.json");
+    const json = await response.json();
+
+    // Cache is hit
+    if (versions && response.headers.get("x-cache") === "HIT") {
         return;
     }
 
@@ -88,10 +93,12 @@ async function processVersions() {
         // A bit of a mess, but it works!
         let changelog;
         switch (version.type) {
-            case "old_beta":
+            case "old_beta": {
                 changelog = `${config.changelog.base}${version.id.replace("b", config.changelog.beta)}`;
                 break;
-            case "old_alpha":
+            }
+
+            case "old_alpha": {
                 if (version.id.startsWith("a")) {
                     changelog = `${config.changelog.base}${version.id.replace("a", config.changelog.alpha)}`;
                 } else if (version.id.startsWith("inf")) {
@@ -103,8 +110,11 @@ async function processVersions() {
                 }
 
                 break;
-            default:
+            }
+
+            default: {
                 changelog = `${config.changelog.base}${version.id}`;
+            }
         }
 
         const age = humanizeDuration(now.getTime() - release.getTime(), {
@@ -189,7 +199,7 @@ export async function getVersions(): Promise<Versions> {
 export async function getVersion(version?: string): Promise<Version | undefined> {
     await getVersions();
 
-    if (!version) {
+    if (!version || !versions) {
         return;
     }
 

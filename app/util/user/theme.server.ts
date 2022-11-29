@@ -6,6 +6,7 @@ import { getEnv } from "~/util/getEnv.server";
 let theme: Theme;
 
 declare global {
+    // eslint-disable-next-line no-var
     var __theme: Theme | undefined;
 }
 

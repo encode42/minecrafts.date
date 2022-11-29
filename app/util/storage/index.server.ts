@@ -4,6 +4,7 @@ import { Versions } from "~/util/storage/getVersions.server";
 let index: Fuse.FuseIndex<unknown> | undefined;
 
 declare global {
+    // eslint-disable-next-line no-var
     var __index: Fuse.FuseIndex<unknown> | undefined;
 }
 

@@ -1,7 +1,7 @@
 import { MetaDescriptor } from "@remix-run/node";
 import { PropsWithChildren, useState } from "react";
 import { Links, LiveReload, Meta, Outlet, Scripts, useCatch, useFetcher, useLoaderData } from "@remix-run/react";
-import { ErrorPage, getResult, RouteRequest } from "@encode42/remix-extras";
+import { ErrorPage, getResult, RouteRequest, SetTheme } from "@encode42/remix-extras";
 import { ColorScheme, ColorSchemeProvider, Global, MantineProvider } from "@mantine/core";
 import { NotificationsProvider } from "@mantine/notifications";
 import { ModalsProvider } from "@mantine/modals";
@@ -12,6 +12,7 @@ import { config } from "~/data/config";
 import montserrat from "a/font/montserrat.ttf";
 import badge from "a/logo/badge.png";
 import { getEnv } from "~/util/getEnv.server";
+import { z } from "zod";
 
 interface MetaOptions {
     "data": LoaderResult
@@ -139,11 +140,19 @@ function Document({ children }: DocumentProps) {
     const [colorScheme, setColorScheme] = useState<ColorScheme>(data.theme.colorScheme);
 
     function toggleColorScheme(value: ColorScheme) {
+        console.log("TETETET");
+
         const newColorScheme = value ?? (colorScheme === "dark" ? "light" : "dark");
         setColorScheme(newColorScheme);
 
-        fetcher.submit({
+        console.log(JSON.stringify({
             "colorScheme": newColorScheme
+        }));
+
+        fetcher.submit({
+            "data": JSON.stringify({
+                "colorScheme": newColorScheme
+            } as z.infer<typeof SetTheme>)
         }, {
             "method": "post",
             "action": data.themeSetRoute

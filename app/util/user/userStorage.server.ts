@@ -5,6 +5,7 @@ import { SessionStorage } from "@remix-run/node";
 let userStorage: SessionStorage;
 
 declare global {
+    // eslint-disable-next-line no-var
     var __userStorage: SessionStorage | undefined;
 }
 

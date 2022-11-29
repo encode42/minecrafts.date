@@ -88,14 +88,15 @@
         "unicorn/prefer-number-properties": "off",
         "unicorn/prefer-query-selector": "off",
         "unicorn/prefer-ternary": "warn",
+        "unicorn/prefer-top-level-await": "off",
         "unicorn/prevent-abbreviations": "off",
         "unicorn/no-static-only-class": "off",
         "react/react-in-jsx-scope": "off",
-        "react/no-unescaped-entities": "warn",
+        "react/no-unescaped-entities": "off",
         "react/destructuring-assignment": "error",
         "react/no-access-state-in-setstate": "warn",
         "react/no-danger": "error",
-        "react/hook-use-state": "error",
+        "react/hook-use-state": "off",
         "react/no-invalid-html-attribute": "error",
         "react/no-namespace": "error",
         "react/no-this-in-sfc": "error",
@@ -127,19 +128,13 @@
             "afterOpening": "never",
             "beforeClosing": "never"
         }],
-        "react/jsx-wrap-multilines": "error",
-        "@typescript-eslint/ban-ts-comment": "off",
-        "@typescript-eslint/no-extra-semi": "off",
-        "@typescript-eslint/no-explicit-any": "off"
+        "react/jsx-wrap-multilines": "error"
     },
     "settings": {
         "import/parsers": {
             "@typescript-eslint/parser": [".ts", ".tsx"]
         },
         "import/resolver": {
-            "typescript": {
-
-            },
             "node": {
                 "extensions": [".js", ".jsx", ".ts", ".tsx"]
             }
