@@ -1,7 +1,6 @@
 import { ThemeToggle, Caption } from "@encode42/mantine-extras";
 import { Group, Stack } from "@mantine/core";
 import { IconBrandDiscord, IconBrandGithub, IconQuestionMark } from "@tabler/icons";
-import { Anchor, Link } from "@encode42/remix-extras";
 import { details } from "~/data/details";
 import { AnchorActionIcon } from "~/component/AnchorActionIcon";
 
@@ -18,7 +17,7 @@ export function Footer() {
                 <AnchorActionIcon title="Discord community for this website" to={details.links.support} variant="filled" size="xl">
                     <IconBrandDiscord />
                 </AnchorActionIcon>
-                <ThemeToggle />
+                <ThemeToggle title="Toggle the theme" /> {/* TODO */}
             </Group>
             <Caption align="center">NOT AN OFFICIAL MINECRAFT PRODUCT. NOT APPROVED BY OR ASSOCIATED WITH MOJANG.</Caption>
         </Stack>
