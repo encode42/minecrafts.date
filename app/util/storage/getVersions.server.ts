@@ -65,7 +65,7 @@ async function processVersions() {
     }
 
     // It isn't!
-    if (timeDiff < config.updateInterval) {
+    if (versions && timeDiff < config.updateInterval) {
         return;
     }
 
